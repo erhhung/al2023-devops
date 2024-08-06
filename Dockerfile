@@ -1,5 +1,3 @@
-# aws ecr-public get-login-password --region us-east-1 | \
-#   docker login --username AWS --password-stdin public.ecr.aws
 FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS builder
 
 # install common build tools
@@ -105,11 +103,9 @@ EOT
 FROM public.ecr.aws/amazonlinux/amazonlinux:2023
 # ==============================================
 
-LABEL name="al2023-devops"
-LABEL description="Amazon Linux 2023 with Python 3.12, Go 1.22, Node.js 22, AWS CLI v2, CDK/8s, Docker, Kubectl, Krew, Helm, and utilities like jq, jo and yq"
-LABEL maintainer="erhhung@gmail.com"
-# build_date will be image tag
-LABEL build_date="2024-08-04"
+#LABEL name="al2023-devops"
+#LABEL description="Amazon Linux 2023 with Python 3.12, Go 1.22, Node.js 22, AWS CLI, Mountpoint for S3, CDK, CDK8s, Docker, Kubectl, Krew, Helm, and utilities like Just, jq, jo and yq"
+#LABEL maintainer="erhhung@gmail.com"
 
 ENV TERM="xterm-256color"
 ENV LANGUAGE="en_US"
@@ -126,7 +122,7 @@ COPY --from=builder /usr/local/share/   /usr/local/share/
 COPY --from=builder /usr/local/etc/     /usr/local/etc/
 COPY --from=builder /etc/alternatives/  /etc/alternatives/
 
-# copy Docker binaries, including Compose and Buildx
+# copy Docker binaries, including Compose and BuildX
 COPY --from=public.ecr.aws/docker/library/docker:dind /usr/local/bin/docker                  /usr/local/bin/
 COPY --from=public.ecr.aws/docker/library/docker:dind /usr/local/libexec/docker/cli-plugins/ /usr/local/bin/
 
@@ -152,7 +148,7 @@ EOF
 # copy various dotfiles
 COPY ./config/ /root/
 
-# install Docker Compose and Buildx as user plugins
+# install Docker Compose and BuildX as user plugins
 RUN <<'EOT'
   set -xe
   HOME=/root

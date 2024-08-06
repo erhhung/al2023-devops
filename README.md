@@ -1,7 +1,7 @@
 al2023-devops
 -------------
 
-Multi-arch (x86_64 and aarch64) Docker image based on **Amazon Linux 2023** for DevOps use cases on AWS, such as CI/CD pipelines and admininistration of EKS workloads, including interactive shell usage.
+Multi-arch (x86_64/amd64 and aarch64/arm64) Docker image based on **Amazon Linux 2023** for DevOps use cases on AWS, such as CI/CD pipelines and admininistration of EKS workloads, including **interactive shell usage**.
 
 ## Bundled Tools
 
@@ -14,7 +14,7 @@ Includes the following components:
 - [AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide) and [CDK8s](https://cdk8s.io/)
 - [Mountpoint for Amazon S3](https://docs.aws.amazon.com/AmazonS3/latest/userguide/mountpoint.html)
 - [Docker CLI](https://www.docker.com/products/cli)
-  - Plugins: [Compose](https://docs.docker.com/compose) and [buildx](https://github.com/docker/buildx)
+  - Plugins: [Compose](https://docs.docker.com/compose) and [BuildX](https://github.com/docker/buildx)
 - [Kubectl](https://kubernetes.io/docs/tasks/tools) and [Krew](https://krew.sigs.k8s.io/)
   - Plugins: [Kubeconform](https://github.com/yannh/kubeconform) and [kube-score](https://github.com/zegl/kube-score)
 - [Helm](https://helm.sh/)

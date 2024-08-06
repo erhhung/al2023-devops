@@ -55,6 +55,15 @@ diff2  = diff  HEAD~2
 diff20 = diff2 HEAD~0
 diff3  = diff  HEAD~3
 diff30 = diff3 HEAD~0
+# show previous commits
+show0 = "!f() { \
+  [[ "$1" =~ ^[0-9]+$ ]] && { p=$1; shift; }; \
+  [  "$1" ] && f=":$1"; \
+  git show HEAD~${p:-0}$f; \
+}; f"
+show1 = show0 1
+show2 = show0 2
+show3 = show0 3
 # list files committed
 ls0 = diff-tree --no-commit-id --name-only -m -r HEAD~0
 ls1 = diff-tree --no-commit-id --name-only -m -r HEAD~1
