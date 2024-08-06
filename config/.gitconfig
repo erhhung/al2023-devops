@@ -1,0 +1,115 @@
+[core]
+abbrev = 8
+
+[color]
+ui = auto
+
+[init]
+defaultBranch = main
+
+[pull]
+rebase = true
+
+[push]
+default = simple
+autoSetupRemote = true
+
+[branch]
+autoSetupRebase = always
+
+[gc]
+autoDetach = false
+
+[alias]
+st = status
+# show commit user info
+who = !echo "$(git config user.name) \\<$(git config user.email)\\>"
+# show current branch
+cb = rev-parse --abbrev-ref HEAD
+# get remote repo name
+name = !basename -s .git "$(git config --get remote.origin.url)"
+# show root path of this project
+root = "!f() { \
+  r=$(git rev-parse --show-superproject-working-tree); \
+  [ "$r" ] && echo $r || git rev-parse --show-toplevel; \
+}; f"
+# show HEAD commit hash
+hash = rev-parse --short HEAD
+# show HEAD commit log
+head = log --name-status -n 1 HEAD~1..HEAD
+# list tracked remotes
+lsr = remote -v
+# list local branches
+lsb = !git branch --no-color | colrm 1 2
+# list remote branches
+lsrb = !git ls-remote --heads origin | colrm 1 59
+# remove local branch
+rmb = branch -d
+# remove remote branch
+rmrb = push origin -d
+# diff previous commits
+diff0  = diff  HEAD~0
+diff1  = diff  HEAD~1
+diff10 = diff1 HEAD~0
+diff2  = diff  HEAD~2
+diff20 = diff2 HEAD~0
+diff3  = diff  HEAD~3
+diff30 = diff3 HEAD~0
+# list files committed
+ls0 = diff-tree --no-commit-id --name-only -m -r HEAD~0
+ls1 = diff-tree --no-commit-id --name-only -m -r HEAD~1
+ls2 = diff-tree --no-commit-id --name-only -m -r HEAD~2
+ls3 = diff-tree --no-commit-id --name-only -m -r HEAD~3
+wc = whatchanged
+# last commit message
+last = !echo "$(git log -1 --pretty=%B)"
+# show commit history
+hist = log --graph --date=short --pretty=format:\"%>|(6)%C(white)┃ %C(yellow)%h %C(brightcyan)%ad %C(white)┃ %Creset%s%C(brightred bold)%d %C(blue italic)[%ae]\"
+# edit commit history
+ehist = "!f() { \
+  git rebase -i ${1:-HEAD~1}; \
+}; f"
+sub = submodule
+# fetch plus submodules
+up = "!f() { \
+  git pull --rebase --prune --tags -f \"$@\" && \
+  git submodule update --init --recursive; \
+}; f"
+co = checkout
+# create new branch
+cob = checkout -b
+# switch to branch only if it exists
+coif = "!f() { \
+  b=$(git ls-remote -h origin ${1:-%}); \
+  [ -n \"$b\" ] && git checkout $1; \
+}; f"
+cm = commit -m
+# add & commit new & existing files
+cma = !git add -A && git commit -m
+touch = commit --allow-empty -m
+save = !git cm "SAVED"
+wipe = !git cm "WIPED" -q && git reset HEAD~1 --hard
+wip = commit -am "WIP"
+# amend previous commit [w/ message]
+amend = "!f() { \
+  a() { git commit --amend \"$@\"; }; \
+  [ -n \"$1\" ] && a -m \"$1\"; \
+  [ -z \"$1\" ] && a -C HEAD; \
+}; f"
+undo = reset HEAD~1 --mixed
+# debug git command
+db = !GIT_TRACE=1 git
+dt = difftool
+mt = mergetool
+
+[filter "lfs"]
+required = true
+clean   = git-lfs clean  -- %f
+smudge  = git-lfs smudge -- %f
+process = git-lfs filter-process
+
+[url "https://github.com/"]
+insteadOf = git@github.com:
+
+[url "https://gitlab.com/"]
+insteadOf = git@gitlab.com:
