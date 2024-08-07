@@ -72,10 +72,11 @@ ls3 = diff-tree --no-commit-id --name-only -m -r HEAD~3
 wc = whatchanged
 # last commit message
 last = !echo "$(git log -1 --pretty=%B)"
-# show tag message                                                                                                                      
-tagm = tag -l --format=\"%(contents:subject)\"                                                                                          
+# show tag message
+tagm = tag -l --format=\"%(contents:subject)\"
 # show commit history
-hist = log --graph --date=short --pretty=format:\"%>|(6)%C(white)┃ %C(yellow)%h %C(brightcyan)%ad %C(white)┃ %Creset%s%C(brightred bold)%d %C(blue italic)[%ae]\"
+# https://git-scm.com/docs/pretty-formats
+hist = log --graph --date=short --pretty=format:\"%>|(6)%C(white)┃ %C(yellow)%h %C(brightcyan)%ad %C(white)┃ %Creset%s%C(brightred bold)%d %C(blue)[%C(magenta)%G?%C(white):%C(blue italic)%ae%C(reset blue)]\"
 # edit commit history
 ehist = "!f() { \
   git rebase -i ${1:-HEAD~1}; \
@@ -96,7 +97,7 @@ coif = "!f() { \
 }; f"
 cm = commit -m
 # add & commit new & existing files
-cma = !git add -A && git commit -m
+cma = !git add -A && git cm
 touch = commit --allow-empty -m
 save = !git cm "SAVED"
 wipe = !git cm "WIPED" -q && git reset HEAD~1 --hard
