@@ -72,6 +72,8 @@ ls3 = diff-tree --no-commit-id --name-only -m -r HEAD~3
 wc = whatchanged
 # last commit message
 last = !echo "$(git log -1 --pretty=%B)"
+# show tag message                                                                                                                      
+tagm = tag -l --format=\"%(contents:subject)\"                                                                                          
 # show commit history
 hist = log --graph --date=short --pretty=format:\"%>|(6)%C(white)┃ %C(yellow)%h %C(brightcyan)%ad %C(white)┃ %Creset%s%C(brightred bold)%d %C(blue italic)[%ae]\"
 # edit commit history
