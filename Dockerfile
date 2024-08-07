@@ -25,7 +25,7 @@ RUN <<'EOT'
     --enable-optimizations \
     --with-lto=full \
     --with-computed-gotos
-  make -sj$(nproc)
+  make -j$(nproc)
   # installs into (empty) dirs under /usr/local: /bin, /lib, /share/man/man1
   make altinstall
   alternatives --install /usr/local/bin/python3 python3 /usr/local/bin/python$VER 1
