@@ -47,11 +47,11 @@ jobs:
               {"Key": "GitHubRepository", "Value": "${{ github.repository }}"}
             ]
           pre-runner-script: |
-            hostname=runner-$(date +%y%m%d%H%M)-${{ env.RUN_INFO }} && \
-            hostnamectl set-hostname $hostname.localdomain
+            hostname="runner-$(date '+%y%m%d%H%M')-${{ env.RUN_INFO }}" && \
+            hostnamectl set-hostname $hostname
             dnf update && \
             dnf install -y git docker libicu && \
-            systemctl enable docker
+            systemctl start docker
     outputs:
       labels: ${{ steps.runner.outputs.labels }}
       instance-id: ${{ steps.runner.outputs.ec2-instance-id }}
@@ -59,7 +59,7 @@ jobs:
   build:
     needs: launch-runner
     # use self-hosted runner for arm64 build; use GitHub-hosted runner otherwise
-    runs-on: ${{ matrix.platform == 'linux/arm64' && format('self-hosted,{0}', needs.launch-runner.outputs.labels) || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.platform == 'linux/arm64' && format('[self-hosted,{0}]', needs.launch-runner.outputs.labels) || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
