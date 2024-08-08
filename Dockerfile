@@ -2,14 +2,21 @@ FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS builder
 
 # install common build tools
 RUN <<'EOT'
-  set -xe
+echo "::group::Install common build tools"
+( set -xe
+
   dnf update
   dnf group install -y "Development Tools"
+  dnf install -y which
+)
+echo "::endgroup::"
 EOT
 
 # build Python 3.12: https://www.build-python-from-source.com/
 RUN <<'EOT'
-  set -xe
+echo "::group::Build Python 3.12"
+( set -xe
+
   cd /tmp
   dnf install -y  openssl-devel bzip2-devel xz-devel libffi-devel \
     libuuid-devel gdbm-devel readline-devel tk-devel sqlite-devel
@@ -25,9 +32,9 @@ RUN <<'EOT'
     --enable-optimizations \
     --with-lto=full \
     --with-computed-gotos
-  make -j$(nproc)
+  make -sj$(nproc)
   # installs into (empty) dirs under /usr/local: /bin, /lib, /share/man/man1
-  make altinstall
+  make -s altinstall
   alternatives --install /usr/local/bin/python3 python3 /usr/local/bin/python$VER 1
   alternatives --install /usr/local/bin/python  python  /usr/local/bin/python3    1
   # must copy new symlinks in /etc/alternatives into the final image
@@ -35,12 +42,17 @@ RUN <<'EOT'
   hash -r
   python3 -VV
   python3 -m pip install -U --no-cache-dir --root-user-action=ignore pip
+  which pip$VER pip3 pip || true
   pip3 -V
+)
+echo "::endgroup::"
 EOT
 
 # build moreutils: https://joeyh.name/code/moreutils/
 RUN <<'EOT'
-  set -xe
+echo "::group::Build moreutils"
+( set -xe
+
   cd /tmp
   dnf install -y libxslt docbook-xsl
   git clone -s git://git.joeyh.name/moreutils
@@ -51,11 +63,15 @@ RUN <<'EOT'
   # installs into (empty) dirs under /usr/local: /bin, /share/man/man1
   PREFIX=/usr/local make install
   sponge -h
+)
+echo "::endgroup::"
 EOT
 
 # build GNU parallel: https://www.gnu.org/software/parallel/
 RUN <<'EOT'
-  set -xe
+echo "::group::Build GNU parallel"
+( set -xe
+
   cd /tmp
   FTP="https://ftp.gnu.org/gnu/parallel"
   curl -sL $FTP/parallel-latest.tar.bz2 | tar -xj
@@ -67,11 +83,15 @@ RUN <<'EOT'
   make install
   echo "will cite" | parallel --citation &> /dev/null
   parallel --version
+)
+echo "::endgroup::"
 EOT
 
 # build tini: https://github.com/krallin/tini
 RUN <<'EOT'
-  set -xe
+echo "::group::Build tini"
+( set -xe
+
   cd /tmp
   dnf install -y cmake glibc-static
   git clone -s https://github.com/krallin/tini.git
@@ -82,11 +102,15 @@ RUN <<'EOT'
   # installs into /usr/local/bin
   PREFIX=/usr/local make install
   tini --version
+)
+echo "::endgroup::"
 EOT
 
 # build jo: https://github.com/jpmens/jo
 RUN <<'EOT'
-  set -xe
+echo "::group::Build jo"
+( set -xe
+
   cd /tmp
   git clone -s https://github.com/jpmens/jo.git
   cd jo
@@ -97,6 +121,8 @@ RUN <<'EOT'
   #   /etc/bash_completion.d, /share/zsh/site-functions
   make install
   jo -v
+)
+echo "::endgroup::"
 EOT
 
 # ==============================================
@@ -150,17 +176,23 @@ COPY ./config/ /root/
 
 # install Docker Compose and BuildX as user plugins
 RUN <<'EOT'
-  set -xe
+echo "::group::Install Docker Compose and BuildX"
+( set -xe
+
   HOME=/root
   PLUGIN_DIR="$HOME/.docker/cli-plugins"
   mkdir -p $PLUGIN_DIR
   alternatives --install $PLUGIN_DIR/docker-compose docker-compose /usr/local/bin/docker-compose 1
   alternatives --install $PLUGIN_DIR/docker-buildx  docker-buildx  /usr/local/bin/docker-buildx  1
   docker buildx install
+)
+echo "::endgroup::"
 EOT
 
 RUN <<'EOT'
-  set -xe
+echo "::group::Install common utilities"
+( set -xe
+
   # use the appropriate binaries for this multi-arch Docker image
   ARCH=$(uname -m | sed -e 's/aarch64/arm64/' -e 's/x86_64/amd64/')
 
@@ -216,11 +248,15 @@ RUN <<'EOT'
   install_bin jq "https://github.com/stedolan/jq/releases/latest/download/jq-linux-$ARCH"
   # install yq: https://github.com/mikefarah/yq
   install_bin yq "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_$ARCH"
+)
+echo "::endgroup::"
 EOT
 
 # install Python tools
 RUN <<'EOT'
-  set -xe
+echo "::group::Install Python tools"
+( set -xe
+
   # install Poetry: https://python-poetry.org/docs/#installing-with-the-official-installer
   curl -sSL https://install.python-poetry.org | \
     POETRY_HOME="/usr/local/poetry" python3 -
@@ -232,11 +268,15 @@ RUN <<'EOT'
   pipx ensurepath --global && pipx --version
   rm -rf /root/.cache
   pygmentize -V
+)
+echo "::endgroup::"
 EOT
 
 # install Golang 1.22
 RUN <<'EOT'
-  set -xe
+echo "::group::Install Golang 1.22"
+( set -xe
+
   dnf install -y golang
   dnf clean all
   rm -rf /var/log/* /var/cache/dnf
@@ -244,11 +284,15 @@ RUN <<'EOT'
   # purge unused locales
   # $LANGUAGE is set by the Dockerfile ENV command
   find /usr/{lib,share}/locale/* -maxdepth 0 -type d -not -iname "$LANGUAGE*" -exec rm -rf {} \;
+)
+echo "::endgroup::"
 EOT
 
 # install Node.js 22
 RUN <<'EOT'
-  set -xe
+echo "::group::Install Node.js 22"
+( set -xe
+
   curl -sSL https://rpm.nodesource.com/setup_22.x | bash -
   dnf install -y nodejs
   dnf clean all
@@ -263,11 +307,15 @@ RUN <<'EOT'
   npm config set loglevel warn
   npm config set fund false
   rm -rf /root/.npm
+)
+echo "::endgroup::"
 EOT
 
 # install AWS tools
 RUN <<'EOT'
-  set -xe
+echo "::group::Install AWS tools"
+( set -xe
+
   # install AWS CLI v2: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
   cd /tmp
   curl -sSLo awscliv2.zip https://awscli.amazonaws.com/awscli-exe-linux-$(uname -m).zip
@@ -289,11 +337,15 @@ RUN <<'EOT'
   dnf clean all
   rm -rf /var/log/* /var/cache/dnf *.rpm
   mount-s3 --version
+)
+echo "::endgroup::"
 EOT
 
 # install Kubernetes tools
 RUN <<'EOT'
-  set -xe
+echo "::group::Install Kubernetes tools"
+( set -xe
+
   # use the appropriate binaries for this multi-arch Docker image
   ARCH=$(uname -m | sed -e 's/aarch64/arm64/' -e 's/x86_64/amd64/')
 
@@ -337,6 +389,8 @@ RUN <<'EOT'
   helm plugin install https://github.com/databus23/helm-diff
   helm plugin install https://github.com/erhhung/helm-ssm
   rm -rf /root/.cache
+)
+echo "::endgroup::"
 EOT
 
 CMD ["bash", "--login"]

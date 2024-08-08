@@ -37,14 +37,14 @@ jobs:
           labels: Linux,ARM64,AL2023
           ec2-image-id: ${{ vars.RUNNER_ARM64_AMI_ID }}
           ec2-instance-type: ${{ vars.RUNNER_ARM64_INSTANCE_TYPE }}
-          spot-instance: true
+          spot-instance: 'true'
           subnet-id: ${{ vars.RUNNER_SUBNET_ID }}
           security-group-id: ${{ vars.RUNNER_SECURITY_GROUP_ID }}
           iam-role-name: ${{ vars.RUNNER_INSTANCE_ROLE_NAME }}
           aws-resource-tags: >
             [
               {"Key": "Name", "Value": "github-runner-${{ env.RUN_INFO }}"},
-              {"Key": "GitHubRepository", "Value": "${{ github.repository }}"}
+              {"Key": "GitHubRepo", "Value": "${{ github.repository }}"}
             ]
           pre-runner-script: |
             hostname="runner-$(date '+%y%m%d%H%M')-${{ env.RUN_INFO }}" && \
