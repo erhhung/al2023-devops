@@ -26,7 +26,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       # https://github.com/erhhung/ec2-github-runner
-      - name: Launch temporary EC2 runner
+      - name: Launch Temporary EC2 Runner
         id: runner
         uses: erhhung/ec2-github-runner@v3
         env:
@@ -52,14 +52,24 @@ jobs:
             dnf update && \
             dnf install -y git docker libicu && \
             systemctl start docker
+
+      - name: Prepare Job Output Values
+        id: output
+        run: |
+          csv="self-hosted,${{ steps.runner.outputs.labels }}"
+          cat <<EOF >> $GITHUB_OUTPUT
+          labels-csv=$csv
+          labels-json=["${csv//,/\",\"}"]
+          EOF
     outputs:
-      labels: ${{ steps.runner.outputs.labels }}
-      instance-id: ${{ steps.runner.outputs.ec2-instance-id }}
+      labels-csv:  '${{ steps.output.outputs.labels-csv }}'
+      labels-json: '${{ steps.output.outputs.labels-json }}'
+      instance-id:  ${{ steps.runner.outputs.ec2-instance-id }}
 
   build:
     needs: launch-runner
     # use self-hosted runner for arm64 build; use GitHub-hosted runner otherwise
-    runs-on: ${{ matrix.platform == 'linux/arm64' && format('[self-hosted,{0}]', needs.launch-runner.outputs.labels) || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.platform == 'linux/arm64' && fromJSON( needs.launch-runner.outputs.labels-json ) || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
@@ -74,8 +84,6 @@ jobs:
 
       - name: Set Environment Variables
         id: env
-        # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#setting-an-environment-variable
-        # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/variables#default-environment-variables
         run: |
           platform=${{ matrix.platform }}
           cat <<EOF >> $GITHUB_ENV
@@ -219,11 +227,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       # https://github.com/erhhung/ec2-github-runner
-      - name: Terminate temporary EC2 runner
+      - name: Terminate Temporary EC2 Runner
         id: runner
         uses: erhhung/ec2-github-runner@v3
         with:
           mode: stop
           github-token: ${{ secrets.RUNNER_GITHUB_REPOS_PAT }}
-          labels: self-hosted,${{ needs.launch-runner.outputs.labels }}
+          labels: ${{ needs.launch-runner.outputs.labels-csv }}
           ec2-instance-id: ${{ needs.launch-runner.outputs.instance-id }}
