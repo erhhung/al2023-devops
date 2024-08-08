@@ -13,8 +13,48 @@ env:
   REGISTRY_IMAGE: erhhung/al2023-devops
 
 jobs:
-  build:
+  launch-runner:
     runs-on: ubuntu-latest
+    steps:
+      # https://github.com/aws-actions/configure-aws-credentials
+      - name: Configure AWS Credentials
+        id: aws
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ vars.RUNNER_AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      # https://github.com/erhhung/ec2-github-runner
+      - name: Launch temporary EC2 runner
+        id: runner
+        uses: erhhung/ec2-github-runner@v3
+        with:
+          mode: start
+          github-token: ${{ secrets.RUNNER_GITHUB_REPOS_PAT }}
+          labels: linux,arm64,al2023
+          ec2-image-id: ${{ vars.RUNNER_ARM64_AMI_ID }}
+          ec2-instance-type: ${{ vars.RUNNER_ARM64_INSTANCE_TYPE }}
+          spot-instance: true
+          subnet-id: ${{ vars.RUNNER_SUBNET_ID }}
+          security-group-id: ${{ vars.RUNNER_SECURITY_GROUP_ID }}
+          aws-resource-tags: >
+            [
+              {"Key": "Name", "Value": "github-runner-${{ github.run_id }}-${{ github.run_attempt }}"},
+              {"Key": "GitHubRepository", "Value": "${{ github.repository }}"}
+            ]
+          pre-runner-script: |
+            dnf update && \
+            dnf install -y git docker libicu && \
+            systemctl enable docker
+    outputs:
+      labels: ${{ steps.ec2-runner.outputs.labels }}
+      instance-id: ${{ steps.ec2-runner.outputs.ec2-instance-id }}
+
+  build:
+    needs: launch-runner
+    # use self-hosted runner for arm64 build; use GitHub-hosted runner otherwise
+    runs-on: [ ${{ matrix.platform == 'linux/arm64' && format('self-hosted,{0}', needs.launch-runner.outputs.labels) || 'ubuntu-latest' }} ]
     strategy:
       fail-fast: false
       matrix:
@@ -60,6 +100,7 @@ jobs:
 
       # https://github.com/aws-actions/configure-aws-credentials
       - name: Configure AWS Credentials
+        id: aws
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1
@@ -75,7 +116,7 @@ jobs:
 
       # https://github.com/docker/login-action
       - name: Log in to Docker Hub
-        id: dockerhub
+        id: docker-hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
@@ -109,9 +150,8 @@ jobs:
           retention-days: 1
 
   merge:
+    needs: build
     runs-on: ubuntu-latest
-    needs:
-      - build
     steps:
       # https://github.com/actions/download-artifact
       - name: Download Digests
@@ -136,7 +176,7 @@ jobs:
 
       # https://github.com/docker/login-action
       - name: Log in to Docker Hub
-        id: dockerhub
+        id: docker-hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
@@ -156,3 +196,29 @@ jobs:
         run: |
           tag="${{ env.REGISTRY_IMAGE }}:$DOCKER_METADATA_OUTPUT_VERSION"
           docker buildx imagetools inspect $tag
+
+  terminate-runner:
+    needs:
+      - launch-runner
+      - build
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    steps:
+      # https://github.com/aws-actions/configure-aws-credentials
+      - name: Configure AWS Credentials
+        id: aws
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      # https://github.com/erhhung/ec2-github-runner
+      - name: Terminate temporary EC2 runner
+        id: runner
+        uses: erhhung/ec2-github-runner@v3
+        with:
+          mode: stop
+          labels: [ self-hosted,${{ needs.launch-runner.outputs.labels }} ]
+          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          ec2-instance-id: ${{ needs.launch-runner.outputs.instance-id }}
