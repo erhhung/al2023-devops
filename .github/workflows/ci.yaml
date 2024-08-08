@@ -54,7 +54,7 @@ jobs:
   build:
     needs: launch-runner
     # use self-hosted runner for arm64 build; use GitHub-hosted runner otherwise
-    runs-on: [ ${{ matrix.platform == 'linux/arm64' && format('self-hosted,{0}', needs.launch-runner.outputs.labels) || 'ubuntu-latest' }} ]
+    runs-on: ${{ matrix.platform == 'linux/arm64' && format('self-hosted,{0}', needs.launch-runner.outputs.labels) || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
@@ -219,6 +219,6 @@ jobs:
         uses: erhhung/ec2-github-runner@v3
         with:
           mode: stop
-          labels: [ self-hosted,${{ needs.launch-runner.outputs.labels }} ]
+          labels: self-hosted,${{ needs.launch-runner.outputs.labels }}
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
           ec2-instance-id: ${{ needs.launch-runner.outputs.instance-id }}
