@@ -48,7 +48,7 @@ jobs:
             ]
           pre-runner-script: |
             hostname="runner-$(date '+%y%m%d%H%M')-${{ env.RUN_INFO }}" && \
-            hostnamectl set-hostname $hostname
+            hostnamectl set-hostname $hostname ## host name == runner name
             dnf update && \
             dnf install -y git docker libicu && \
             systemctl start docker
@@ -139,6 +139,8 @@ jobs:
       - name: Build and Push by Digest
         id: build
         uses: docker/build-push-action@v6
+        env:
+          BUILDKIT_PROGRESS: plain
         with:
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.metadata.outputs.labels }}

@@ -2,8 +2,9 @@ FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS builder
 
 # install common build tools
 RUN <<'EOT'
+set -e
 echo "::group::Install common build tools"
-( set -xe
+( set -euxo pipefail
 
   dnf update
   dnf group install -y "Development Tools"
@@ -14,8 +15,9 @@ EOT
 
 # build Python 3.12: https://www.build-python-from-source.com/
 RUN <<'EOT'
+set -e
 echo "::group::Build Python 3.12"
-( set -xe
+( set -euxo pipefail
 
   cd /tmp
   dnf install -y  openssl-devel bzip2-devel xz-devel libffi-devel \
@@ -50,8 +52,9 @@ EOT
 
 # build moreutils: https://joeyh.name/code/moreutils/
 RUN <<'EOT'
+set -e
 echo "::group::Build moreutils"
-( set -xe
+( set -euxo pipefail
 
   cd /tmp
   dnf install -y libxslt docbook-xsl
@@ -69,8 +72,9 @@ EOT
 
 # build GNU parallel: https://www.gnu.org/software/parallel/
 RUN <<'EOT'
+set -e
 echo "::group::Build GNU parallel"
-( set -xe
+( set -euxo pipefail
 
   cd /tmp
   FTP="https://ftp.gnu.org/gnu/parallel"
@@ -89,8 +93,9 @@ EOT
 
 # build tini: https://github.com/krallin/tini
 RUN <<'EOT'
+set -e
 echo "::group::Build tini"
-( set -xe
+( set -euxo pipefail
 
   cd /tmp
   dnf install -y cmake glibc-static
@@ -108,8 +113,9 @@ EOT
 
 # build jo: https://github.com/jpmens/jo
 RUN <<'EOT'
+set -e
 echo "::group::Build jo"
-( set -xe
+( set -euxo pipefail
 
   cd /tmp
   git clone -s https://github.com/jpmens/jo.git
@@ -176,22 +182,26 @@ COPY ./config/ /root/
 
 # install Docker Compose and BuildX as user plugins
 RUN <<'EOT'
+set -e
 echo "::group::Install Docker Compose and BuildX"
-( set -xe
+( set -euxo pipefail
 
   HOME=/root
   PLUGIN_DIR="$HOME/.docker/cli-plugins"
   mkdir -p $PLUGIN_DIR
   alternatives --install $PLUGIN_DIR/docker-compose docker-compose /usr/local/bin/docker-compose 1
   alternatives --install $PLUGIN_DIR/docker-buildx  docker-buildx  /usr/local/bin/docker-buildx  1
-  docker buildx install
+  docker compose version
+  docker buildx  install
+  docker buildx  version
 )
 echo "::endgroup::"
 EOT
 
 RUN <<'EOT'
+set -e
 echo "::group::Install common utilities"
-( set -xe
+( set -euxo pipefail
 
   # use the appropriate binaries for this multi-arch Docker image
   ARCH=$(uname -m | sed -e 's/aarch64/arm64/' -e 's/x86_64/amd64/')
@@ -254,8 +264,9 @@ EOT
 
 # install Python tools
 RUN <<'EOT'
+set -e
 echo "::group::Install Python tools"
-( set -xe
+( set -euxo pipefail
 
   # install Poetry: https://python-poetry.org/docs/#installing-with-the-official-installer
   curl -sSL https://install.python-poetry.org | \
@@ -274,8 +285,9 @@ EOT
 
 # install Golang 1.22
 RUN <<'EOT'
+set -e
 echo "::group::Install Golang 1.22"
-( set -xe
+( set -euxo pipefail
 
   dnf install -y golang
   dnf clean all
@@ -290,8 +302,9 @@ EOT
 
 # install Node.js 22
 RUN <<'EOT'
+set -e
 echo "::group::Install Node.js 22"
-( set -xe
+( set -euxo pipefail
 
   curl -sSL https://rpm.nodesource.com/setup_22.x | bash -
   dnf install -y nodejs
@@ -313,8 +326,9 @@ EOT
 
 # install AWS tools
 RUN <<'EOT'
+set -e
 echo "::group::Install AWS tools"
-( set -xe
+( set -euxo pipefail
 
   # install AWS CLI v2: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
   cd /tmp
@@ -332,7 +346,8 @@ echo "::group::Install AWS tools"
 
   # install Mountpoint for S3: https://github.com/awslabs/mountpoint-s3#getting-started
   cd /tmp
-  curl -sSLO https://s3.amazonaws.com/mountpoint-s3-release/latest/$(uname -m)/mount-s3.rpm
+  ARCH=$(uname -m | sed 's/aarch64/arm64/') # must be x86_64 or arm64
+  curl -sSLO https://s3.amazonaws.com/mountpoint-s3-release/latest/$ARCH/mount-s3.rpm
   dnf install -y ./mount-s3.rpm
   dnf clean all
   rm -rf /var/log/* /var/cache/dnf *.rpm
@@ -343,8 +358,9 @@ EOT
 
 # install Kubernetes tools
 RUN <<'EOT'
+set -e
 echo "::group::Install Kubernetes tools"
-( set -xe
+( set -euxo pipefail
 
   # use the appropriate binaries for this multi-arch Docker image
   ARCH=$(uname -m | sed -e 's/aarch64/arm64/' -e 's/x86_64/amd64/')
@@ -375,8 +391,12 @@ echo "::group::Install Kubernetes tools"
   kubectl krew version
 
   # install kube-score: https://github.com/zegl/kube-score#installation
-  kubectl krew install score
-  kubectl score version
+  if [ $ARCH == amd64 ]; then
+    # can't install kube-score on ARM via Krew yet:
+    # https://github.com/zegl/kube-score/issues/594
+    kubectl krew install score
+    kubectl score version
+  fi
 
   # install Helm: https://helm.sh/docs/intro/install/
   cd /usr/local/bin

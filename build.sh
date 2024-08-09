@@ -29,4 +29,5 @@ aws ecr-public get-login-password --region us-east-1 | \
 
 # docker buildx create --name multi-builder --bootstrap --use
 # https://docs.docker.com/build/building/multi-platform/#building-multi-platform-images
-docker buildx build "$@" --tag $src --load --progress plain . 2>&1 | tee -a $log
+docker buildx build "$@" --tag $src --load --progress plain . 2>&1 | \
+  sed -E 's/^(#[0-9]+ [0-9.]+ )(::(end)?group::.*)$/\2/' | tee -a $log
