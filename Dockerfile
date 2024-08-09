@@ -39,12 +39,15 @@ echo "::group::Build Python 3.12"
   make -s altinstall
   alternatives --install /usr/local/bin/python3 python3 /usr/local/bin/python$VER 1
   alternatives --install /usr/local/bin/python  python  /usr/local/bin/python3    1
-  # must copy new symlinks in /etc/alternatives into the final image
   alternatives --list
   hash -r
   python3 -VV
   python3 -m pip install -U --no-cache-dir --root-user-action=ignore pip
-  which pip$VER pip3 pip || true
+  # must copy all new symlinks in /etc/alternatives into the final image
+  alternatives --install /usr/local/bin/pip3 pip3 /usr/local/bin/pip$VER 1
+  alternatives --install /usr/local/bin/pip  pip  /usr/local/bin/pip3    1
+  alternatives --list
+  hash -r
   pip3 -V
 )
 echo "::endgroup::"
