@@ -1,10 +1,12 @@
+# =========================================================
 FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS builder
+# =========================================================
 
 # install common build tools
 RUN <<'EOT'
 set -e
 echo "::group::Install common build tools"
-( set -euxo pipefail
+( set -uxo pipefail
 
   dnf update
   dnf group install -y "Development Tools"
@@ -17,7 +19,7 @@ EOT
 RUN <<'EOT'
 set -e
 echo "::group::Build Python 3.12"
-( set -euxo pipefail
+( set -uxo pipefail
 
   cd /tmp
   dnf install -y  openssl-devel bzip2-devel xz-devel libffi-devel \
@@ -36,7 +38,7 @@ echo "::group::Build Python 3.12"
     --with-computed-gotos
   make -sj$(nproc)
   # installs into (empty) dirs under /usr/local: /bin, /lib, /share/man/man1
-  make -s altinstall
+  make altinstall
   alternatives --install /usr/local/bin/python3 python3 /usr/local/bin/python$VER 1
   alternatives --install /usr/local/bin/python  python  /usr/local/bin/python3    1
   alternatives --list
@@ -57,17 +59,15 @@ EOT
 RUN <<'EOT'
 set -e
 echo "::group::Build moreutils"
-( set -euxo pipefail
+( set -uxo pipefail
 
   cd /tmp
   dnf install -y libxslt docbook-xsl
   git clone -s git://git.joeyh.name/moreutils
   cd moreutils
-  # fix error: cannot parse /usr/share/xml/docbook/stylesheet/docbook-xsl/manpages/docbook.xsl
-  sed -i '/ifneq/,/endif/cDOCBOOKXSL?=\/usr\/share\/sgml\/docbook/xsl-stylesheets' Makefile
-  make -sj$(nproc)
+  DOCBOOKXSL=/usr/share/sgml/docbook/xsl-stylesheets make -sj$(nproc)
   # installs into (empty) dirs under /usr/local: /bin, /share/man/man1
-  PREFIX=/usr/local make install
+  PREFIX=/usr/local make install 2> /dev/null
   sponge -h
 )
 echo "::endgroup::"
@@ -77,13 +77,13 @@ EOT
 RUN <<'EOT'
 set -e
 echo "::group::Build GNU parallel"
-( set -euxo pipefail
+( set -uxo pipefail
 
   cd /tmp
   FTP="https://ftp.gnu.org/gnu/parallel"
   curl -sL $FTP/parallel-latest.tar.bz2 | tar -xj
   cd parallel*
-  ./configure --enable-optimizations --prefix=/usr/local -q
+  ./configure --prefix=/usr/local -q
   make -sj$(nproc)
   # installs into (empty) dirs under /usr/local: /bin, /share/man/man1,
   #   /share/bash-completion/completions, /share/zsh/site-functions
@@ -98,7 +98,7 @@ EOT
 RUN <<'EOT'
 set -e
 echo "::group::Build tini"
-( set -euxo pipefail
+( set -uxo pipefail
 
   cd /tmp
   dnf install -y cmake glibc-static
@@ -118,7 +118,7 @@ EOT
 RUN <<'EOT'
 set -e
 echo "::group::Build jo"
-( set -euxo pipefail
+( set -uxo pipefail
 
   cd /tmp
   git clone -s https://github.com/jpmens/jo.git
@@ -134,28 +134,18 @@ echo "::group::Build jo"
 echo "::endgroup::"
 EOT
 
-# ==============================================
-FROM public.ecr.aws/amazonlinux/amazonlinux:2023
-# ==============================================
-
-#LABEL name="al2023-devops"
-#LABEL description="Amazon Linux 2023 with Python 3.12, Go 1.22, Node.js 22, AWS CLI, Mountpoint for S3, CDK, CDK8s, Docker, Kubectl, Krew, Helm, and utilities like Just, jq, jo and yq"
-#LABEL maintainer="erhhung@gmail.com"
-
-ENV TERM="xterm-256color"
-ENV LANGUAGE="en_US"
-ENV PYGMENTSTYLE="base16-materia"
-ENV CDK8S_CHECK_UPGRADE="false"
-ENV JSII_SILENCE_WARNING_DEPRECATED_NODE_VERSION="1"
-ENV PATH="/usr/local/poetry/bin:$PATH:/root/.krew/bin"
+# ==========================
+FROM scratch AS consolidator
+# ==========================
 
 # copy directories installed to in the builder stage
-COPY --from=builder /usr/local/bin/     /usr/local/bin/
-COPY --from=builder /usr/local/lib/     /usr/local/lib/
-COPY --from=builder /usr/local/include/ /usr/local/include/
-COPY --from=builder /usr/local/share/   /usr/local/share/
-COPY --from=builder /usr/local/etc/     /usr/local/etc/
-COPY --from=builder /etc/alternatives/  /etc/alternatives/
+COPY --from=builder /usr/local/bin/         /usr/local/bin/
+COPY --from=builder /usr/local/lib/         /usr/local/lib/
+COPY --from=builder /usr/local/include/     /usr/local/include/
+COPY --from=builder /usr/local/share/       /usr/local/share/
+COPY --from=builder /usr/local/etc/         /usr/local/etc/
+COPY --from=builder /etc/alternatives/      /etc/alternatives/
+COPY --from=builder /var/lib/alternatives/  /var/lib/alternatives/
 
 # copy Docker binaries, including Compose and BuildX
 COPY --from=public.ecr.aws/docker/library/docker:dind /usr/local/bin/docker                  /usr/local/bin/
@@ -183,11 +173,29 @@ EOF
 # copy various dotfiles
 COPY ./config/ /root/
 
+# ==============================================
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023
+# ==============================================
+
+#LABEL name="al2023-devops"
+#LABEL description="Amazon Linux 2023 with Python 3.12, Go 1.22, Node.js 22, AWS CLI, Mountpoint for S3, CDK, CDK8s, Docker, Kubectl, Krew, Helm, and utilities like Just, jq, jo and yq"
+#LABEL maintainer="erhhung@gmail.com"
+
+ENV TERM="xterm-256color"
+ENV LANGUAGE="en_US"
+ENV PYGMENTSTYLE="base16-materia"
+ENV CDK8S_CHECK_UPGRADE="false"
+ENV JSII_SILENCE_WARNING_DEPRECATED_NODE_VERSION="1"
+ENV PATH="/usr/local/poetry/bin:$PATH:/root/.krew/bin"
+
+# Copy all consolidated files
+COPY --from=consolidator / /
+
 # install Docker Compose and BuildX as user plugins
 RUN <<'EOT'
 set -e
 echo "::group::Install Docker Compose and BuildX"
-( set -euxo pipefail
+( set -uxo pipefail
 
   HOME=/root
   PLUGIN_DIR="$HOME/.docker/cli-plugins"
@@ -204,7 +212,7 @@ EOT
 RUN <<'EOT'
 set -e
 echo "::group::Install common utilities"
-( set -euxo pipefail
+( set -uxo pipefail
 
   # use the appropriate binaries for this multi-arch Docker image
   ARCH=$(uname -m | sed -e 's/aarch64/arm64/' -e 's/x86_64/amd64/')
@@ -269,7 +277,7 @@ EOT
 RUN <<'EOT'
 set -e
 echo "::group::Install Python tools"
-( set -euxo pipefail
+( set -uxo pipefail
 
   # install Poetry: https://python-poetry.org/docs/#installing-with-the-official-installer
   curl -sSL https://install.python-poetry.org | \
@@ -290,7 +298,7 @@ EOT
 RUN <<'EOT'
 set -e
 echo "::group::Install Golang 1.22"
-( set -euxo pipefail
+( set -uxo pipefail
 
   dnf install -y golang
   dnf clean all
@@ -307,7 +315,7 @@ EOT
 RUN <<'EOT'
 set -e
 echo "::group::Install Node.js 22"
-( set -euxo pipefail
+( set -uxo pipefail
 
   curl -sSL https://rpm.nodesource.com/setup_22.x | bash -
   dnf install -y nodejs
@@ -331,7 +339,7 @@ EOT
 RUN <<'EOT'
 set -e
 echo "::group::Install AWS tools"
-( set -euxo pipefail
+( set -uxo pipefail
 
   # install AWS CLI v2: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
   cd /tmp
@@ -363,7 +371,7 @@ EOT
 RUN <<'EOT'
 set -e
 echo "::group::Install Kubernetes tools"
-( set -euxo pipefail
+( set -uxo pipefail
 
   # use the appropriate binaries for this multi-arch Docker image
   ARCH=$(uname -m | sed -e 's/aarch64/arm64/' -e 's/x86_64/amd64/')
@@ -379,7 +387,8 @@ echo "::group::Install Kubernetes tools"
   # install Kubeconform: https://github.com/yannh/kubeconform#installation
   cd /usr/local/bin
   REL="https://github.com/yannh/kubeconform/releases/latest"
-  curl -sSL $REL/download/kubeconform-linux-$ARCH.tar.gz | tar -xz --no-same-owner kubeconform
+  curl -sSL $REL/download/kubeconform-linux-$ARCH.tar.gz | \
+    tar -xz --no-same-owner kubeconform
   ln -s /usr/local/bin/kubeconform /usr/local/bin/kubectl-conform
   kubectl conform -v
 
@@ -394,23 +403,41 @@ echo "::group::Install Kubernetes tools"
   kubectl krew version
 
   # install kube-score: https://github.com/zegl/kube-score#installation
-  if [ $ARCH == amd64 ]; then
-    # can't install kube-score on ARM via Krew yet:
-    # https://github.com/zegl/kube-score/issues/594
-    kubectl krew install score
-    kubectl score version
+  kubectl krew install score
+  if [ $ARCH == arm64 ]; then
+    echo "Installing the proper $ARCH binary for kube-score"
+    REL="https://github.com/zegl/kube-score/releases/latest"
+    VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
+    curl -sSL $REL/download/kube-score_${VER#v}_linux_$ARCH.tar.gz | \
+      tar -C /root/.krew/store/score/* -xz
   fi
+  kubectl score version
 
   # install Helm: https://helm.sh/docs/intro/install/
   cd /usr/local/bin
   REL="https://github.com/helm/helm/releases/latest"
   VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
-  curl -sSL https://get.helm.sh/helm-$VER-linux-$ARCH.tar.gz | tar -xz --strip 1 linux-$ARCH/helm
+  curl -sSL https://get.helm.sh/helm-$VER-linux-$ARCH.tar.gz | \
+    tar -xz --strip 1 linux-$ARCH/helm
   helm version
 
   # install Helm plugins
   helm plugin install https://github.com/databus23/helm-diff
-  helm plugin install https://github.com/erhhung/helm-ssm
+  helm diff version
+  (
+    cd /root/.local/share/helm/plugins
+    REPO="https://github.com/codacy/helm-ssm"
+    git clone -q $REPO
+    cd helm-ssm
+    REL="$REPO/releases/latest"
+    # name must be *linux.tgz or *linux-arm.tgz
+    ARCH=${ARCH/%amd*/} ARCH=${ARCH/%arm*/-arm}
+    curl -sSL $REL/download/helm-ssm-linux$ARCH.tgz | tar -xz
+    VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
+    sed -i "s/\"dev\"/\"$VER\"/" plugin.yaml
+    helm ssm --help
+  )
+  helm plugin list
   rm -rf /root/.cache
 )
 echo "::endgroup::"
