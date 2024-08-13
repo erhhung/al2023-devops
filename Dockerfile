@@ -173,9 +173,9 @@ EOF
 # copy various dotfiles
 COPY ./config/ /root/
 
-# ==============================================
-FROM public.ecr.aws/amazonlinux/amazonlinux:2023
-# ==============================================
+# =======================================================
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS final
+# =======================================================
 
 #LABEL name="al2023-devops"
 #LABEL description="Amazon Linux 2023 with Python 3.12, Go 1.22, Node.js 22, AWS CLI, Mountpoint for S3, CDK, CDK8s, Docker, Kubectl, Krew, Helm, and utilities like Just, jq, jo and yq"

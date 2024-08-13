@@ -36,6 +36,8 @@ jobs:
           github-token: ${{ secrets.RUNNER_GITHUB_REPOS_PAT }}
           labels: Linux,ARM64,AL2023
           ec2-image-id: ${{ vars.RUNNER_ARM64_AMI_ID }}
+          # runner could lose connection to GitHub Actions
+          # if using instance type smaller than t4g.xlarge
           ec2-instance-type: ${{ vars.RUNNER_ARM64_INSTANCE_TYPE }}
           spot-instance: 'true'
           subnet-id: ${{ vars.RUNNER_SUBNET_ID }}
@@ -49,9 +51,7 @@ jobs:
           pre-runner-script: |
             hostname="runner-$(date '+%y%m%d%H%M')-${{ env.RUN_INFO }}" && \
             hostnamectl set-hostname $hostname ## host name == runner name
-            dnf update && \
-            dnf install -y git docker libicu && \
-            systemctl start docker
+            dnf update && dnf install -y git
 
       - name: Prepare Job Output Values
         id: output
@@ -90,6 +90,11 @@ jobs:
           PLATFORM_PAIR=${platform//\//-}
           EOF
 
+      # https://github.com/crazy-max/ghaction-setup-docker
+      - name: Set up Docker Daemon
+        id: docker
+        uses: crazy-max/ghaction-setup-docker@v3
+
       # https://github.com/docker/setup-qemu-action
       - name: Set up QEMU Emulator
         id: qemu
@@ -102,7 +107,11 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v3
         with:
+          version: latest
           platforms: ${{ matrix.platform }}
+          buildkitd-flags: >-
+            --allow-insecure-entitlement security.insecure
+            --allow-insecure-entitlement network.host
 
       # https://github.com/docker/metadata-action
       - name: Extract Metadata for Docker
@@ -150,8 +159,9 @@ jobs:
       - name: Export Digest
         id: export
         run: |
-          mkdir -p /tmp/digests
           digest="${{ steps.build.outputs.digest }}"
+          [ "$digest" ] || exit 1
+          mkdir -p /tmp/digests
           touch "/tmp/digests/${digest#sha256:}"
 
       # https://github.com/actions/upload-artifact
