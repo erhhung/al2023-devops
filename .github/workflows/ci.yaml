@@ -50,8 +50,9 @@ jobs:
             ]
           pre-runner-script: |
             hostname="runner-$(date '+%y%m%d%H%M')-${{ env.RUN_INFO }}" && \
-            hostnamectl set-hostname $hostname ## host name == runner name
-            dnf update && dnf install -y git
+            hostnamectl set-hostname $hostname  # host name == runner name
+            # libicu is required by GHA Dotnet Core
+            dnf update && dnf install -y git libicu
 
       - name: Prepare Job Output Values
         id: output
