@@ -151,6 +151,24 @@ COPY --from=builder /var/lib/alternatives/  /var/lib/alternatives/
 COPY --from=public.ecr.aws/docker/library/docker:dind /usr/local/bin/docker                  /usr/local/bin/
 COPY --from=public.ecr.aws/docker/library/docker:dind /usr/local/libexec/docker/cli-plugins/ /usr/local/bin/
 
+# install Docker Compose and BuildX as user plugins
+RUN <<'EOT'
+set -e
+echo "::group::Install Docker Compose and BuildX"
+( set -uxo pipefail
+
+  HOME=/root
+  PLUGIN_DIR="$HOME/.docker/cli-plugins"
+  mkdir -p $PLUGIN_DIR
+  alternatives --install $PLUGIN_DIR/docker-compose docker-compose /usr/local/bin/docker-compose 1
+  alternatives --install $PLUGIN_DIR/docker-buildx  docker-buildx  /usr/local/bin/docker-buildx  1
+  docker compose version
+  docker buildx  install
+  docker buildx  version
+)
+echo "::endgroup::"
+EOT
+
 # configure locale; others will be purged from /usr/{lib,share}/locale
 COPY <<'EOF' /etc/locale.conf
 LANGUAGE=en_US
@@ -191,27 +209,9 @@ ENV PATH="/usr/local/poetry/bin:$PATH:/root/.krew/bin"
 # Copy all consolidated files
 COPY --from=consolidator / /
 
-# install Docker Compose and BuildX as user plugins
 RUN <<'EOT'
 set -e
-echo "::group::Install Docker Compose and BuildX"
-( set -uxo pipefail
-
-  HOME=/root
-  PLUGIN_DIR="$HOME/.docker/cli-plugins"
-  mkdir -p $PLUGIN_DIR
-  alternatives --install $PLUGIN_DIR/docker-compose docker-compose /usr/local/bin/docker-compose 1
-  alternatives --install $PLUGIN_DIR/docker-buildx  docker-buildx  /usr/local/bin/docker-buildx  1
-  docker compose version
-  docker buildx  install
-  docker buildx  version
-)
-echo "::endgroup::"
-EOT
-
-RUN <<'EOT'
-set -e
-echo "::group::Install common utilities"
+echo "::group::Install Linux utilities"
 ( set -uxo pipefail
 
   # use the appropriate binaries for this multi-arch Docker image
