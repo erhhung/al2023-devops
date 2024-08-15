@@ -10,7 +10,6 @@ echo "::group::Install common build tools"
 
   dnf update
   dnf group install -y "Development Tools"
-  dnf install -y which
 )
 echo "::endgroup::"
 EOT
@@ -63,11 +62,13 @@ echo "::group::Build moreutils"
 
   cd /tmp
   dnf install -y libxslt docbook-xsl
-  git clone -s git://git.joeyh.name/moreutils
+  git clone -q git://git.joeyh.name/moreutils
   cd moreutils
   DOCBOOKXSL=/usr/share/sgml/docbook/xsl-stylesheets make -sj$(nproc)
   # installs into (empty) dirs under /usr/local: /bin, /share/man/man1
   PREFIX=/usr/local make install 2> /dev/null
+  # "chronic" requires perl-IPC-Run
+  # "ts" requires perl-Time-HiRes
   sponge -h
 )
 echo "::endgroup::"
@@ -102,7 +103,7 @@ echo "::group::Build tini"
 
   cd /tmp
   dnf install -y cmake glibc-static
-  git clone -s https://github.com/krallin/tini.git
+  git clone -q https://github.com/krallin/tini
   cd tini
   export CFLAGS="-DPR_SET_CHILD_SUBREAPER=36 -DPR_GET_CHILD_SUBREAPER=37"
   cmake .
@@ -121,7 +122,7 @@ echo "::group::Build jo"
 ( set -uxo pipefail
 
   cd /tmp
-  git clone -s https://github.com/jpmens/jo.git
+  git clone -q https://github.com/jpmens/jo
   cd jo
   autoreconf -i
   ./configure --prefix=/usr/local -q
@@ -130,6 +131,27 @@ echo "::group::Build jo"
   #   /etc/bash_completion.d, /share/zsh/site-functions
   make install
   jo -v
+)
+echo "::endgroup::"
+EOT
+
+# copy Docker binaries, including BuildX and Compose
+COPY --from=public.ecr.aws/docker/library/docker:dind /usr/local/bin/docker                  /usr/local/bin/
+COPY --from=public.ecr.aws/docker/library/docker:dind /usr/local/libexec/docker/cli-plugins/ /usr/local/bin/
+
+# install Docker BuildX and Compose as user plugins
+RUN <<'EOT'
+set -e
+echo "::group::Install Docker BuildX and Compose"
+( set -uxo pipefail
+
+  PLUGIN_DIR="/root/.docker/cli-plugins"
+  mkdir -p $PLUGIN_DIR
+  alternatives --install $PLUGIN_DIR/docker-buildx  docker-buildx  /usr/local/bin/docker-buildx  1
+  alternatives --install $PLUGIN_DIR/docker-compose docker-compose /usr/local/bin/docker-compose 1
+  docker buildx  install
+  docker buildx  version
+  docker compose version
 )
 echo "::endgroup::"
 EOT
@@ -146,28 +168,7 @@ COPY --from=builder /usr/local/share/       /usr/local/share/
 COPY --from=builder /usr/local/etc/         /usr/local/etc/
 COPY --from=builder /etc/alternatives/      /etc/alternatives/
 COPY --from=builder /var/lib/alternatives/  /var/lib/alternatives/
-
-# copy Docker binaries, including Compose and BuildX
-COPY --from=public.ecr.aws/docker/library/docker:dind /usr/local/bin/docker                  /usr/local/bin/
-COPY --from=public.ecr.aws/docker/library/docker:dind /usr/local/libexec/docker/cli-plugins/ /usr/local/bin/
-
-# install Docker Compose and BuildX as user plugins
-RUN <<'EOT'
-set -e
-echo "::group::Install Docker Compose and BuildX"
-( set -uxo pipefail
-
-  HOME=/root
-  PLUGIN_DIR="$HOME/.docker/cli-plugins"
-  mkdir -p $PLUGIN_DIR
-  alternatives --install $PLUGIN_DIR/docker-compose docker-compose /usr/local/bin/docker-compose 1
-  alternatives --install $PLUGIN_DIR/docker-buildx  docker-buildx  /usr/local/bin/docker-buildx  1
-  docker compose version
-  docker buildx  install
-  docker buildx  version
-)
-echo "::endgroup::"
-EOT
+COPY --from=builder /root/.docker/          /root/.docker/
 
 # configure locale; others will be purged from /usr/{lib,share}/locale
 COPY <<'EOF' /etc/locale.conf
@@ -190,6 +191,8 @@ EOF
 
 # copy various dotfiles
 COPY ./config/ /root/
+# copy various scripts
+COPY ./scripts/ /tmp/
 
 # =======================================================
 FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS final
@@ -221,10 +224,11 @@ echo "::group::Install Linux utilities"
   rpm -q system-release | sed -En 's/^.+-(2023.+)-.+$/\1/p' > /etc/dnf/vars/releasever
   dnf check-update
 
-  # install common utilities (procps provides the "free" command)
-  dnf install -y tar xz bzip2 gzip unzip wget git which findutils \
-    bc man pwgen gettext procps openssl nmap bash-completion tmux \
-    vim glibc-locale-source glibc-langpack-en
+  # install common utilities (procps provides "free" command)
+  # perl-IPC-Run and perl-Time-HiRes are required by moreutils
+  dnf install -y git wget tar xz bzip2 gzip unzip man bash-completion \
+    which findutils pwgen gettext procps openssl nmap tmux vim bc \
+    glibc-locale-source glibc-langpack-en perl-IPC-Run perl-Time-HiRes
   dnf clean all
   rm -rf /var/log/* /var/cache/dnf
   alternatives --install /usr/local/bin/vi vi /usr/bin/vim 1
@@ -232,7 +236,7 @@ echo "::group::Install Linux utilities"
 
   # install tmux plugins: https://github.com/tmux-plugins/tpm#installation
   TMUX_PLUGIN_MANAGER_PATH="/root/.tmux/plugins/tpm"
-  git clone https://github.com/tmux-plugins/tpm $TMUX_PLUGIN_MANAGER_PATH
+  git clone -q https://github.com/tmux-plugins/tpm $TMUX_PLUGIN_MANAGER_PATH
   # install requires previously copied .tmux.conf
   $TMUX_PLUGIN_MANAGER_PATH/bin/install_plugins
 
@@ -250,7 +254,8 @@ echo "::group::Install Linux utilities"
   mv just     /usr/local/bin
   mv */*.bash /usr/local/etc/bash_completion.d
   mv just.1   /usr/local/share/man/man1
-  rmdir completions
+  rm -rf completions
+  just --version
 
   install_bin() {
     cd /usr/local/bin
@@ -303,6 +308,7 @@ echo "::group::Install Golang 1.22"
   dnf install -y golang
   dnf clean all
   rm -rf /var/log/* /var/cache/dnf
+  go version
 
   # purge unused locales
   # $LANGUAGE is set by the Dockerfile ENV command
@@ -442,5 +448,10 @@ echo "::group::Install Kubernetes tools"
 )
 echo "::endgroup::"
 EOT
+
+# FINAL step of Dockerfile: run custom "versions.sh" script
+# (copied in prior stage) to generate "/root/.versions.json":
+# manifest of all installed tools and their current versions
+RUN /tmp/versions.sh && rm -rf /tmp/*
 
 CMD ["bash", "--login"]
