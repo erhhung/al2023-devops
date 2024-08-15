@@ -11,6 +11,8 @@ on:
 
 env:
   REGISTRY_IMAGE: erhhung/al2023-devops
+  IMAGE_LABELS: |
+    org.opencontainers.image.authors=Erhhung Yuan <erhhung@gmail.com>
 
 jobs:
   launch-runner:
@@ -40,6 +42,7 @@ jobs:
           # if using instance type smaller than t4g.xlarge
           ec2-instance-type: ${{ vars.RUNNER_ARM64_INSTANCE_TYPE }}
           spot-instance: 'true'
+          root-volume-size: '${{ vars.RUNNER_ROOT_VOLUME_SIZE }}'
           subnet-id: ${{ vars.RUNNER_SUBNET_ID }}
           security-group-id: ${{ vars.RUNNER_SECURITY_GROUP_ID }}
           iam-role-name: ${{ vars.RUNNER_INSTANCE_ROLE_NAME }}
@@ -121,6 +124,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY_IMAGE }}
+          labels: ${{ env.IMAGE_LABELS }}
 
       # https://github.com/aws-actions/configure-aws-credentials
       - name: Configure AWS Credentials
@@ -205,6 +209,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY_IMAGE }}
+          labels: ${{ env.IMAGE_LABELS }}
 
       # https://github.com/docker/login-action
       - name: Log in to Docker Hub
