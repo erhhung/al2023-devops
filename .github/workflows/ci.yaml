@@ -37,10 +37,10 @@ jobs:
           mode: start
           github-token: ${{ secrets.RUNNER_GITHUB_REPOS_PAT }}
           labels: Linux,ARM64,AL2023
-          ec2-image-id: ${{ vars.RUNNER_ARM64_AMI_ID }}
+          image-id: ${{ vars.RUNNER_ARM64_AMI_ID }}
           # runner could lose connection to GitHub Actions
           # if using instance type smaller than t4g.xlarge
-          ec2-instance-type: ${{ vars.RUNNER_ARM64_INSTANCE_TYPE }}
+          instance-type: ${{ vars.RUNNER_ARM64_INSTANCE_TYPE }}
           spot-instance: 'true'
           root-volume-size: '${{ vars.RUNNER_ROOT_VOLUME_SIZE }}'
           subnet-id: ${{ vars.RUNNER_SUBNET_ID }}
@@ -67,9 +67,10 @@ jobs:
           labels-json=["${csv//,/\",\"}"]
           EOF
     outputs:
-      labels-csv:  '${{ steps.output.outputs.labels-csv }}'
+      runner-name:  ${{ steps.runner.outputs.runner-name }}
+      instance-id:  ${{ steps.runner.outputs.instance-id }}
       labels-json: '${{ steps.output.outputs.labels-json }}'
-      instance-id:  ${{ steps.runner.outputs.ec2-instance-id }}
+      labels-csv:  '${{ steps.output.outputs.labels-csv }}'
 
   build:
     needs: launch-runner
@@ -83,7 +84,7 @@ jobs:
           - linux/arm64
     steps:
       # https://github.com/actions/checkout
-      - name: Checkout Source Code
+      - name: Check out Source Code
         id: checkout
         uses: actions/checkout@v4
 
@@ -258,4 +259,4 @@ jobs:
           mode: stop
           github-token: ${{ secrets.RUNNER_GITHUB_REPOS_PAT }}
           labels: ${{ needs.launch-runner.outputs.labels-csv }}
-          ec2-instance-id: ${{ needs.launch-runner.outputs.instance-id }}
+          instance-id: ${{ needs.launch-runner.outputs.instance-id }}
