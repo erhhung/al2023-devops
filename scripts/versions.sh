@@ -62,7 +62,7 @@ setver kubeconform $(v=`kubectl conform -v`; echo ${v#v})
 setver kubectl $(v=(`kubectl version --client | head -1`); echo ${v[2]#v})
 setver md5sum $(v=(`md5sum --version | head -1`); echo ${v[-1]})
 gclone git://git.joeyh.name/moreutils
-setver moreutils $(git describe --tags)
+setver moreutils $(git describe --abbrev=0)
 setver mount-s3 $(v=(`mount-s3 --version`); echo ${v[1]})
 setver nmap $(v=(`nmap --version | head -1`); echo ${v[2]})
 setver node $(v=`node --version`; echo ${v#v})
