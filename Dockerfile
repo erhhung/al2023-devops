@@ -212,6 +212,8 @@ ENV PATH="/usr/local/poetry/bin:$PATH:/root/.krew/bin"
 # Copy all consolidated files
 COPY --from=consolidator / /
 
+WORKDIR /root
+
 RUN <<'EOT'
 set -e
 echo "::group::Install Linux utilities"

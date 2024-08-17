@@ -1,5 +1,3 @@
-cd $HOME
-
 alias pwd='printf "%q\n" "$(builtin pwd)"'
 alias cdd='cd - > /dev/null'
 alias ls='ls --color=auto'
