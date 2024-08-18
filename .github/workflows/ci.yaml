@@ -171,6 +171,7 @@ jobs:
           BUILDKIT_PROGRESS: plain
         with:
           platforms: ${{ matrix.platform }}
+          tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
           outputs: type=image,name=${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
 
