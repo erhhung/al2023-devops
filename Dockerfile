@@ -454,6 +454,16 @@ EOT
 # FINAL step of Dockerfile: run custom "versions.sh" script
 # (copied in prior stage) to generate "/root/.versions.json":
 # manifest of all installed tools and their current versions
-RUN /tmp/versions.sh && rm -rf /tmp/*
+RUN <<'EOT'
+set -e
+echo "::group::Generate .versions.json"
+( set -uxo pipefail
+
+  /tmp/versions.sh
+  dnf clean all
+  rm -rf /tmp/* /var/log/* /var/cache/dnf
+)
+echo "::endgroup::"
+EOT
 
 CMD ["bash", "--login"]
