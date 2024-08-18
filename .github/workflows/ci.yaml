@@ -10,7 +10,6 @@ on:
       - '[2-9][0-9].[0-1][0-9].?[0-3]?[0-9]?'
 
 env:
-  IMAGE_NAME: erhhung/al2023-devops
   IMAGE_LABELS: |
     org.opencontainers.image.authors=Erhhung Yuan <erhhung@gmail.com>
 
@@ -125,8 +124,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            docker.io/${{ env.IMAGE_NAME }}
-            ghcr.io/${{ env.IMAGE_NAME }}
+            docker.io/${{ github.repository }}
+            ghcr.io/${{ github.repository }}
           labels: ${{ env.IMAGE_LABELS }}
 
       # https://github.com/aws-actions/configure-aws-credentials
@@ -173,7 +172,9 @@ jobs:
           platforms: ${{ matrix.platform }}
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
-          outputs: type=image,name=${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
+          cache-from: type=gha,scope=${{ github.repository }}-${{ github.ref_name }}-${{ matrix.platform }}
+          cache-to: type=gha,scope=${{ github.repository }}-${{ github.ref_name }}-${{ matrix.platform }}
+          outputs: type=image,name=${{ github.repository }},push-by-digest=true,name-canonical=true,push=true
 
       # create 0-byte file named /tmp/digests/<digest>
       - name: Export Digest
@@ -223,8 +224,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            docker.io/${{ env.IMAGE_NAME }}
-            ghcr.io/${{ env.IMAGE_NAME }}
+            docker.io/${{ github.repository }}
+            ghcr.io/${{ github.repository }}
           labels: ${{ env.IMAGE_LABELS }}
 
       # https://github.com/docker/login-action
@@ -250,14 +251,14 @@ jobs:
         working-directory: /tmp/digests
         run: |
           tags=($(jq -cr '[.tags[] | "-t \(.)"] | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON"))
-          images=($(printf '${{ env.IMAGE_NAME }}@sha256:%s ' *))
+          images=($(printf '${{ github.repository }}@sha256:%s ' *))
           docker buildx imagetools create "${tags[@]}" "${images[@]}"
 
       # confirm merged image manifests
       - name: Inspect Image
         id: inspect
         run: |
-          tag="${{ env.IMAGE_NAME }}:$DOCKER_METADATA_OUTPUT_VERSION"
+          tag="${{ github.repository }}:$DOCKER_METADATA_OUTPUT_VERSION"
           docker buildx imagetools inspect $tag
 
   terminate-runner:
