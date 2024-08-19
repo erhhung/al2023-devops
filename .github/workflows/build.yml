@@ -65,7 +65,7 @@ jobs:
         id: metadata
         uses: docker/metadata-action@v5
         with:
-          images: |
+          images: |-
             docker.io/${{ github.repository }}
             ghcr.io/${{ github.repository }}
           labels: ${{ inputs.image-labels }}
