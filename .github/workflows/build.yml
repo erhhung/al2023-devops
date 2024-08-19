@@ -31,7 +31,7 @@ jobs:
 
       - name: Set Environment Variables
         id: env
-        run: |
+        run: |-
           platform=${{ inputs.platform }}
           cat <<EOF >> $GITHUB_ENV
           PLATFORM_PAIR=${platform//\//-}
@@ -66,7 +66,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |-
-            docker.io/${{ github.repository }}
+            ${{ github.repository }}
             ghcr.io/${{ github.repository }}
           labels: ${{ inputs.image-labels }}
 
@@ -91,7 +91,6 @@ jobs:
         id: docker-hub
         uses: docker/login-action@v3
         with:
-          registry: docker.io
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
@@ -121,7 +120,7 @@ jobs:
       # create 0-byte file named /tmp/digests/<digest>
       - name: Export Digest
         id: export
-        run: |
+        run: |-
           digest="${{ steps.build.outputs.digest }}"
           [ "$digest" ] || exit 1
           mkdir -p /tmp/digests

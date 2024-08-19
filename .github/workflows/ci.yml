@@ -55,12 +55,12 @@ jobs:
           subnet-id: ${{ vars.RUNNER_SUBNET_ID }}
           security-group-id: ${{ vars.RUNNER_SECURITY_GROUP_ID }}
           iam-role-name: ${{ vars.RUNNER_INSTANCE_ROLE_NAME }}
-          aws-resource-tags: >
+          aws-resource-tags: >-
             [
               {"Key": "Name", "Value": "github-runner-${{ env.RUN_INFO }}"},
               {"Key": "GitHubRepo", "Value": "${{ github.repository }}"}
             ]
-          pre-runner-script: |
+          pre-runner-script: |-
             hostname="runner-$(date '+%y%m%d%H%M')-${{ env.RUN_INFO }}" && \
             hostnamectl set-hostname $hostname  # host name == runner name
             # iptables is required to set up Docker
@@ -69,7 +69,7 @@ jobs:
 
       - name: Prepare Job Output Values
         id: output
-        run: |
+        run: |-
           csv="self-hosted,${{ steps.runner.outputs.labels }}"
           cat <<EOF >> $GITHUB_OUTPUT
           labels-csv=$csv
@@ -131,7 +131,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |-
-            docker.io/${{ github.repository }}
+            ${{ github.repository }}
             ghcr.io/${{ github.repository }}
           labels: ${{ env.IMAGE_LABELS }}
 
@@ -140,7 +140,6 @@ jobs:
         id: docker-hub
         uses: docker/login-action@v3
         with:
-          registry: docker.io
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
@@ -156,7 +155,7 @@ jobs:
       - name: Create Manifests and Push
         id: manifests
         working-directory: /tmp/digests
-        run: |
+        run: |-
           tags=($(jq -cr '[.tags[] | "-t \(.)"] | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON"))
           images=($(printf '${{ github.repository }}@sha256:%s ' *))
           docker buildx imagetools create "${tags[@]}" "${images[@]}"
@@ -164,7 +163,7 @@ jobs:
       # confirm merged image manifests
       - name: Inspect Image
         id: inspect
-        run: |
+        run: |-
           tag="${{ github.repository }}:$DOCKER_METADATA_OUTPUT_VERSION"
           docker buildx imagetools inspect $tag
 
