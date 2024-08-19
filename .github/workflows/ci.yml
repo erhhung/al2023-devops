@@ -2,7 +2,7 @@
 name: CI
 
 on:
-  # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows
+  # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#push
   push:
     tags:
       # match on year.month[.day]: YY.MM[.dd]
@@ -71,132 +71,24 @@ jobs:
       labels-json: '${{ steps.output.outputs.labels-json }}'
       labels-csv:  '${{ steps.output.outputs.labels-csv }}'
 
-  build:
+  build-amd64:
+    uses: ./.github/workflows/build.yml
+    with:
+      platform: linux/amd64
+      image-labels: ${{ env.IMAGE_LABELS }}
+
+  build-arm64:
     needs: launch-runner
-    # use self-hosted runner for arm64 build; use GitHub-hosted runner otherwise
-    runs-on: ${{ matrix.platform == 'linux/arm64' && fromJSON( needs.launch-runner.outputs.labels-json ) || 'ubuntu-latest' }}
-    strategy:
-      fail-fast: false
-      matrix:
-        platform:
-          - linux/amd64
-          - linux/arm64
-    steps:
-      # https://github.com/actions/checkout
-      - name: Check out Source Code
-        id: checkout
-        uses: actions/checkout@v4
-
-      - name: Set Environment Variables
-        id: env
-        run: |
-          platform=${{ matrix.platform }}
-          cat <<EOF >> $GITHUB_ENV
-          PLATFORM_PAIR=${platform//\//-}
-          EOF
-
-      # https://github.com/crazy-max/ghaction-setup-docker
-      - name: Set up Docker Daemon
-        id: docker
-        uses: crazy-max/ghaction-setup-docker@v3
-
-      # https://github.com/docker/setup-qemu-action
-      - name: Set up QEMU Emulator
-        id: qemu
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: ${{ matrix.platform }}
-
-      # https://github.com/docker/setup-buildx-action
-      - name: Set up Docker BuildX
-        id: buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          version: latest
-          platforms: ${{ matrix.platform }}
-          buildkitd-flags: >-
-            --allow-insecure-entitlement security.insecure
-            --allow-insecure-entitlement network.host
-
-      # https://github.com/docker/metadata-action
-      - name: Extract Metadata for Docker
-        id: metadata
-        uses: docker/metadata-action@v5
-        with:
-          images: |
-            docker.io/${{ github.repository }}
-            ghcr.io/${{ github.repository }}
-          labels: ${{ env.IMAGE_LABELS }}
-
-      # https://github.com/aws-actions/configure-aws-credentials
-      - name: Configure AWS Credentials
-        id: aws
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: us-east-1
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-      # https://github.com/aws-actions/amazon-ecr-login
-      - name: Log in to ECR Public
-        id: ecr
-        uses: aws-actions/amazon-ecr-login@v2
-        with:
-          registry-type: public
-
-      # https://github.com/docker/login-action
-      - name: Log in to Docker Hub
-        id: docker-hub
-        uses: docker/login-action@v3
-        with:
-          registry: docker.io
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-      # https://github.com/docker/login-action
-      - name: Log in to GitHub GHCR
-        id: ghcr
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ github.token }}
-
-      # https://github.com/docker/build-push-action
-      - name: Build and Push by Digest
-        id: build
-        uses: docker/build-push-action@v6
-        env:
-          BUILDKIT_PROGRESS: plain
-        with:
-          platforms: ${{ matrix.platform }}
-          tags: ${{ steps.metadata.outputs.tags }}
-          labels: ${{ steps.metadata.outputs.labels }}
-          cache-from: type=gha,scope=${{ github.repository }}-${{ github.ref_name }}-${{ matrix.platform }}
-          cache-to: type=gha,scope=${{ github.repository }}-${{ github.ref_name }}-${{ matrix.platform }}
-          outputs: type=image,name=${{ github.repository }},push-by-digest=true,name-canonical=true,push=true
-
-      # create 0-byte file named /tmp/digests/<digest>
-      - name: Export Digest
-        id: export
-        run: |
-          digest="${{ steps.build.outputs.digest }}"
-          [ "$digest" ] || exit 1
-          mkdir -p /tmp/digests
-          touch "/tmp/digests/${digest#sha256:}"
-
-      # https://github.com/actions/upload-artifact
-      - name: Upload Digest
-        id: upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: digests-${{ env.PLATFORM_PAIR }}
-          path: /tmp/digests/*
-          if-no-files-found: error
-          retention-days: 1
+    uses: ./.github/workflows/build.yml
+    with:
+      platform: linux/arm64
+      runs-on: ${{ needs.launch-runner.outputs.labels-json }}
+      image-labels: ${{ env.IMAGE_LABELS }}
 
   merge:
-    needs: build
+    needs:
+      - build-amd64
+      - build-arm64
     runs-on: ubuntu-latest
     steps:
       # https://github.com/actions/download-artifact
@@ -262,11 +154,11 @@ jobs:
           docker buildx imagetools inspect $tag
 
   terminate-runner:
+    if: always()
     needs:
       - launch-runner
-      - build
+      - build-arm64
     runs-on: ubuntu-latest
-    if: ${{ always() }}
     steps:
       # https://github.com/aws-actions/configure-aws-credentials
       - name: Configure AWS Credentials
