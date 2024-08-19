@@ -14,6 +14,16 @@ env:
     org.opencontainers.image.authors=Erhhung Yuan <erhhung@gmail.com>
 
 jobs:
+  # because env cannot be passed to reusable workflows:
+  # https://github.com/orgs/community/discussions/26671
+  env-vars:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set env Variables as Outputs
+        run: '#'
+    outputs:
+      image-labels: ${{ env.IMAGE_LABELS }}
+
   launch-runner:
     runs-on: ubuntu-latest
     steps:
@@ -72,18 +82,21 @@ jobs:
       labels-csv:  '${{ steps.output.outputs.labels-csv }}'
 
   build-amd64:
+    needs: env-vars
     uses: ./.github/workflows/build.yml
     with:
       platform: linux/amd64
-      image-labels: ${{ env.IMAGE_LABELS }}
+      image-labels: ${{ needs.env-vars.outputs.image-labels }}
 
   build-arm64:
-    needs: launch-runner
+    needs:
+      - launch-runner
+      - env-vars
     uses: ./.github/workflows/build.yml
     with:
       platform: linux/arm64
       runs-on: ${{ needs.launch-runner.outputs.labels-json }}
-      image-labels: ${{ env.IMAGE_LABELS }}
+      image-labels: ${{ needs.env-vars.outputs.image-labels }}
 
   merge:
     needs:
