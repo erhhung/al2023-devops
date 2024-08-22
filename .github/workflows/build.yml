@@ -67,7 +67,7 @@ jobs:
         with:
           images: |-
             docker.io/${{ github.repository }}
-            ghcr.io/${{ github.repository }}
+              ghcr.io/${{ github.repository }}
           labels: ${{ inputs.image-labels }}
 
       # https://github.com/aws-actions/configure-aws-credentials
@@ -91,7 +91,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: docker.io
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          username:    ${{ vars.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       # https://github.com/docker/login-action
@@ -107,12 +107,13 @@ jobs:
       - name: Build and Push by Digest
         id: build
         uses: docker/build-push-action@v6
-        env:
-          BUILDKIT_PROGRESS: plain
         with:
           platforms: ${{ inputs.platform }}
-          tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
+          # tags CSV must not contain image :tag suffixes when pushing by digest
+          tags: docker.io/${{ github.repository }},ghcr.io/${{ github.repository }}
+          sbom: 'true'
+          provenance: 'true'
           cache-from: type=gha,scope=${{ github.repository }}:${{ github.ref_name }}-${{ env.PLATFORM_PAIR }}
           cache-to:   type=gha,scope=${{ github.repository }}:${{ github.ref_name }}-${{ env.PLATFORM_PAIR }},mode=max
           outputs: type=image,name=${{ github.repository }},push-by-digest=true,name-canonical=true,push=true

@@ -35,6 +35,6 @@ Size is approximately 2.5 GB.
 
 Images are available in the following repositories:
 - Docker Hub: [`docker.io/erhhung/al2023-devops`](https://hub.docker.com/repository/docker/erhhung/al2023-devops)
-- GitHub Container Registry: [`ghcr.io/erhhung/al2023-devops`](https://github.com/users/erhhung/packages/container/al2023-devops)
+- GitHub Container Registry: [`ghcr.io/erhhung/al2023-devops`](https://github.com/erhhung/al2023-devops/pkgs/container/al2023-devops)
 
 Version information about installed components can be found in the Docker image at `/root/.versions.json`.
