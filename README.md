@@ -15,6 +15,7 @@ Includes the following components:
 - [Mountpoint for Amazon S3](https://docs.aws.amazon.com/AmazonS3/latest/userguide/mountpoint.html)
 - [Docker CLI](https://www.docker.com/products/cli)
   - Plugins: [BuildX](https://github.com/docker/buildx) and [Compose](https://docs.docker.com/compose)
+- [Dive](https://github.com/wagoodman/dive) and [MinToolkit/Mint](https://github.com/mintoolkit/mint)
 - [Kubectl](https://kubernetes.io/docs/tasks/tools) and [Krew](https://krew.sigs.k8s.io/)
   - Plugins: [Kubeconform](https://github.com/yannh/kubeconform) and [kube-score](https://github.com/zegl/kube-score)
 - [Helm](https://helm.sh/)
@@ -31,10 +32,10 @@ As well as the following utilities:
 
 ## Prebuilt Images
 
-Size is approximately 2.5 GB.
+Size is approximately 2.6 GB.
 
 Images are available in the following repositories:
 - Docker Hub: [`docker.io/erhhung/al2023-devops`](https://hub.docker.com/repository/docker/erhhung/al2023-devops)
 - GitHub Container Registry: [`ghcr.io/erhhung/al2023-devops`](https://github.com/erhhung/al2023-devops/pkgs/container/al2023-devops)
 
-Version information about installed components can be found in the Docker image at `/root/.versions.json`.
+Version information about the installed components can be found inside the Docker image at `/root/.versions.json`.

@@ -364,13 +364,41 @@ echo "::group::Install AWS tools"
   rm -rf /root/.npm
 
   # install Mountpoint for S3: https://github.com/awslabs/mountpoint-s3#getting-started
-  cd /tmp
-  ARCH=$(uname -m | sed 's/aarch64/arm64/') # must be x86_64 or arm64
-  curl -sSLO https://s3.amazonaws.com/mountpoint-s3-release/latest/$ARCH/mount-s3.rpm
-  dnf install -y ./mount-s3.rpm
+  dnf install -y fuse-libs
   dnf clean all
-  rm -rf /var/log/* /var/cache/dnf *.rpm
+  rm -rf /var/log/* /var/cache/dnf
+  ARCH=$(uname -m | sed 's/aarch64/arm64/') # must be x86_64 or arm64
+  curl -sSL https://s3.amazonaws.com/mountpoint-s3-release/latest/$ARCH/mount-s3.tar.gz | \
+    tar -C /usr/local -xz ./bin
   mount-s3 --version
+)
+echo "::endgroup::"
+EOT
+
+# install OCI image tools
+RUN <<'EOT'
+set -e
+echo "::group::Install OCI image tools"
+( set -uxo pipefail
+
+  # use the appropriate binaries for this multi-arch Docker image
+  ARCH=$(uname -m | sed -e 's/aarch64/arm64/' -e 's/x86_64/amd64/')
+
+  # install Dive: https://github.com/wagoodman/dive#installation
+  REL="https://github.com/wagoodman/dive/releases/latest"
+  VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
+  curl -sSL $REL/download/dive_${VER}_linux_$ARCH.tar.gz | \
+    tar -C /usr/local/bin -xz dive
+  dive --version
+  (
+    # install MinToolkit: https://github.com/mintoolkit/mint#installation
+    REL="https://github.com/mintoolkit/mint/releases/latest"
+    # name must be *linux.* or *linux_arm64.*
+    ARCH=${ARCH/%amd*/} ARCH=${ARCH/arm/_arm}
+    curl -sSL $REL/download/dist_linux${ARCH}.tar.gz | \
+      tar -C /usr/local/bin -xz --strip 1 dist_linux${ARCH}/mint*
+    mint --version
+  )
 )
 echo "::endgroup::"
 EOT
@@ -415,8 +443,8 @@ echo "::group::Install Kubernetes tools"
   if [ $ARCH == arm64 ]; then
     echo "Installing the proper $ARCH binary for kube-score"
     REL="https://github.com/zegl/kube-score/releases/latest"
-    VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
-    curl -sSL $REL/download/kube-score_${VER#v}_linux_$ARCH.tar.gz | \
+    VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
+    curl -sSL $REL/download/kube-score_${VER}_linux_$ARCH.tar.gz | \
       tar -C /root/.krew/store/score/* -xz
   fi
   kubectl score version
@@ -440,7 +468,7 @@ echo "::group::Install Kubernetes tools"
     REL="$REPO/releases/latest"
     # name must be *linux.tgz or *linux-arm.tgz
     ARCH=${ARCH/%amd*/} ARCH=${ARCH/%arm*/-arm}
-    curl -sSL $REL/download/helm-ssm-linux$ARCH.tgz | tar -xz
+    curl -sSL $REL/download/helm-ssm-linux${ARCH}.tgz | tar -xz
     VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
     sed -i "s/\"dev\"/\"$VER\"/" plugin.yaml
     helm ssm --help
