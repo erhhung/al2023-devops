@@ -276,6 +276,22 @@ echo "::group::Install Linux utilities"
   install_bin jq "https://github.com/stedolan/jq/releases/latest/download/jq-linux-$ARCH"
   # install yq: https://github.com/mikefarah/yq
   install_bin yq "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_$ARCH"
+
+  EPEL="https://dl.fedoraproject.org/pub/epel"
+  rpm --import $EPEL/RPM-GPG-KEY-EPEL-9
+
+  install_rpms() {
+    local pkg url
+    for pkg in "$@"; do
+      url="$EPEL/9/Everything/$(uname -m)/Packages/${pkg::1}/"
+      url+=$(curl -Ls $url | sed -En 's/^.+href="('${pkg}'-[0-9.]+[^"]+).+$/\1/p')
+      rpm -i $url
+    done
+  }
+
+  # install jsonnet: https://jsonnet.org/
+  install_rpms c4core rapidyaml jsonnet-libs jsonnet
+  jsonnet --version
 )
 echo "::endgroup::"
 EOT
