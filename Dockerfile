@@ -491,6 +491,13 @@ echo "::group::Install Kubernetes tools"
   )
   helm plugin list
   rm -rf /root/.cache
+
+  # install Argo CD CLI: https://argo-cd.readthedocs.io/en/stable/cli_installation/
+  cd /usr/local/bin
+  REL="https://github.com/argoproj/argo-cd/releases/latest"
+  curl -sSLo argocd $REL/download/argocd-linux-$ARCH
+  chmod +x argocd
+  argocd version --client
 )
 echo "::endgroup::"
 EOT

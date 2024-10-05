@@ -35,6 +35,7 @@ grelease() {
   curl -Is $1/releases/latest | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p'
 }
 
+setver argocd $(v=(`argocd version --client --short`); v=${v[-1]#v}; echo ${v%+*})
 setver aws $(v=(`aws --version`); echo ${v[0]#*/})
 setver bash ${BASH_VERSION/%\(*/}
 setver bc $(v=(`bc --version | head -1`); echo ${v[-1]})
