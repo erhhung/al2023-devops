@@ -199,7 +199,7 @@ FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS final
 # =======================================================
 
 #LABEL name="al2023-devops"
-#LABEL description="Amazon Linux 2023 with Python 3.12, Go 1.22, Node.js 22, AWS CLI, Mountpoint for S3, CDK, CDK8s, Docker, Kubectl, Krew, Helm, and utilities like Just, jq, jo and yq"
+#LABEL description="Amazon Linux 2023 with Python 3.12, Go 1.22, Node.js 22, AWS CLI, Mountpoint for S3, CDK, CDK8s, Docker, Kubectl, Krew, Helm, Argo CD, and utilities like jq, jo, yq, jsonnet, and Just"
 #LABEL maintainer="erhhung@gmail.com"
 
 ENV TERM="xterm-256color"
@@ -383,9 +383,10 @@ echo "::group::Install AWS tools"
   dnf install -y fuse-libs
   dnf clean all
   rm -rf /var/log/* /var/cache/dnf
+  REL="https://s3.amazonaws.com/mountpoint-s3-release/latest"
   ARCH=$(uname -m | sed 's/aarch64/arm64/') # must be x86_64 or arm64
-  curl -sSL https://s3.amazonaws.com/mountpoint-s3-release/latest/$ARCH/mount-s3.tar.gz | \
-    tar -C /usr/local -xz ./bin
+  curl -sSL $REL/$ARCH/mount-s3.tar.gz | \
+    tar -xz -C /usr/local/bin --no-same-owner --strip 2 ./bin
   mount-s3 --version
 )
 echo "::endgroup::"
@@ -403,8 +404,8 @@ echo "::group::Install OCI image tools"
   # install Dive: https://github.com/wagoodman/dive#installation
   REL="https://github.com/wagoodman/dive/releases/latest"
   VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
-  curl -sSL $REL/download/dive_${VER}_linux_$ARCH.tar.gz | \
-    tar -C /usr/local/bin -xz dive
+  curl -sSL $REL/download/dive_${VER}_linux_${ARCH}.tar.gz | \
+    tar -xz -C /usr/local/bin --no-same-owner dive
   dive --version
   (
     # install MinToolkit: https://github.com/mintoolkit/mint#installation
@@ -412,7 +413,7 @@ echo "::group::Install OCI image tools"
     # name must be *linux.* or *linux_arm64.*
     ARCH=${ARCH/%amd*/} ARCH=${ARCH/arm/_arm}
     curl -sSL $REL/download/dist_linux${ARCH}.tar.gz | \
-      tar -C /usr/local/bin -xz --strip 1 dist_linux${ARCH}/mint*
+      tar -xz -C /usr/local/bin --no-same-owner --strip 1 dist_linux${ARCH}/mint*
     mint --version
   )
 )
@@ -437,17 +438,16 @@ echo "::group::Install Kubernetes tools"
   kubectl version --client
 
   # install Kubeconform: https://github.com/yannh/kubeconform#installation
-  cd /usr/local/bin
   REL="https://github.com/yannh/kubeconform/releases/latest"
-  curl -sSL $REL/download/kubeconform-linux-$ARCH.tar.gz | \
-    tar -xz --no-same-owner kubeconform
+  curl -sSL $REL/download/kubeconform-linux-${ARCH}.tar.gz | \
+    tar -xz -C /usr/local/bin --no-same-owner kubeconform
   ln -s /usr/local/bin/kubeconform /usr/local/bin/kubectl-conform
   kubectl conform -v
 
   # install Krew: https://krew.sigs.k8s.io/docs/user-guide/setup/install/
   cd /tmp
   REL="https://github.com/kubernetes-sigs/krew/releases/latest"
-  KREW=krew-linux_$ARCH
+  KREW=krew-linux_${ARCH}
   curl -sSL $REL/download/$KREW.tar.gz | tar -xz ./$KREW
   ./$KREW install krew
   rm -f ./$KREW
@@ -460,17 +460,16 @@ echo "::group::Install Kubernetes tools"
     echo "Installing the proper $ARCH binary for kube-score"
     REL="https://github.com/zegl/kube-score/releases/latest"
     VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
-    curl -sSL $REL/download/kube-score_${VER}_linux_$ARCH.tar.gz | \
+    curl -sSL $REL/download/kube-score_${VER}_linux_${ARCH}.tar.gz | \
       tar -C /root/.krew/store/score/* -xz
   fi
   kubectl score version
 
   # install Helm: https://helm.sh/docs/intro/install/
-  cd /usr/local/bin
   REL="https://github.com/helm/helm/releases/latest"
   VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
-  curl -sSL https://get.helm.sh/helm-$VER-linux-$ARCH.tar.gz | \
-    tar -xz --strip 1 linux-$ARCH/helm
+  curl -sSL https://get.helm.sh/helm-$VER-linux-${ARCH}.tar.gz | \
+    tar -xz -C /usr/local/bin --no-same-owner --strip 1 linux-${ARCH}/helm
   helm version
 
   # install Helm plugins
@@ -492,12 +491,19 @@ echo "::group::Install Kubernetes tools"
   helm plugin list
   rm -rf /root/.cache
 
-  # install Argo CD CLI: https://argo-cd.readthedocs.io/en/stable/cli_installation/
+  # install Helmfile: https://github.com/helmfile/helmfile#installation
+  REL="https://github.com/helmfile/helmfile/releases/latest"
+  VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
+  curl -sSL $REL/download/helmfile_${VER}_linux_${ARCH}.tar.gz | \
+    tar -xz -C /usr/local/bin --no-same-owner helmfile
+  helmfile --version
+
+  # install Argo CD: https://argo-cd.readthedocs.io/en/stable/cli_installation/
   cd /usr/local/bin
   REL="https://github.com/argoproj/argo-cd/releases/latest"
-  curl -sSLo argocd $REL/download/argocd-linux-$ARCH
+  curl -sSLo argocd $REL/download/argocd-linux-${ARCH}
   chmod +x argocd
-  argocd version --client
+  argocd version --client --short
 )
 echo "::endgroup::"
 EOT

@@ -1,6 +1,6 @@
 # [al2023-devops](https://github.com/erhhung/al2023-devops)
 
-Multi-arch (x86_64/amd64 and aarch64/arm64) Docker image based on **Amazon Linux 2023** for DevOps use cases on AWS, such as CI/CD pipelines and admininistration of EKS workloads, including **interactive shell usage**.
+Multi-arch (x86_64/amd64 and aarch64/arm64) Docker image based on **Amazon Linux 2023** for DevOps use cases on AWS, such as CI/CD pipelines and manual admininistration of EKS workloads, including **interactive shell usage**.
 
 ## Bundled Tools
 
@@ -19,6 +19,7 @@ Includes the following components:
   - Plugins: [Kubeconform](https://github.com/yannh/kubeconform) and [kube-score](https://github.com/zegl/kube-score)
 - [Helm](https://helm.sh/)
   - Plugins: [helm-diff](https://github.com/databus23/helm-diff) and [helm-ssm](https://github.com/codacy/helm-ssm)
+  - [Helmfile](https://github.com/helmfile/helmfile)
 - [Argo CD](https://argo-cd.readthedocs.io/en/stable/)
 
 As well as the following utilities:
@@ -33,10 +34,15 @@ As well as the following utilities:
 
 ## Prebuilt Images
 
-Size is approximately 2.7 GB.
+Size is approximately 2.8 GB.
 
 Images are available in the following repositories:
 - Docker Hub: [`docker.io/erhhung/al2023-devops`](https://hub.docker.com/repository/docker/erhhung/al2023-devops)
 - GitHub Container Registry: [`ghcr.io/erhhung/al2023-devops`](https://github.com/erhhung/al2023-devops/pkgs/container/al2023-devops)
 
 Version information about the installed components can be found inside the Docker image at `/root/.versions.json`.
+
+## To-Do
+
+The current "All-in-One" image is getting bloated, so there's a need to create a slimmed-down image for
+CI/CD pipelines only, and a separate image for launching ad-hoc containers for manual administration.
