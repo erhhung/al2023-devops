@@ -13,13 +13,18 @@ Includes the following components:
 - [AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide) and [CDK8s](https://cdk8s.io/)
 - [Mountpoint for Amazon S3](https://docs.aws.amazon.com/AmazonS3/latest/userguide/mountpoint.html)
 - [Docker CLI](https://www.docker.com/products/cli)
-  - Plugins: [BuildX](https://github.com/docker/buildx) and [Compose](https://docs.docker.com/compose)
+  - [BuildX](https://github.com/docker/buildx)
+  - [Compose](https://docs.docker.com/compose)
 - [Dive](https://github.com/wagoodman/dive) and [MinToolkit/Mint](https://github.com/mintoolkit/mint)
 - [Kubectl](https://kubernetes.io/docs/tasks/tools) and [Krew](https://krew.sigs.k8s.io/)
-  - Plugins: [Kubeconform](https://github.com/yannh/kubeconform) and [kube-score](https://github.com/zegl/kube-score)
+  - [kubectl-grep](https://github.com/guessi/kubectl-grep)
+  - [kubectl-argo-rollouts](https://argo-rollouts.readthedocs.io/en/stable/)
+  - [Kubeconform](https://github.com/yannh/kubeconform)
+  - [kube-score](https://github.com/zegl/kube-score)
 - [Helm](https://helm.sh/)
-  - Plugins: [helm-diff](https://github.com/databus23/helm-diff) and [helm-ssm](https://github.com/codacy/helm-ssm)
   - [Helmfile](https://github.com/helmfile/helmfile)
+  - [helm-diff](https://github.com/databus23/helm-diff)
+  - [helm-ssm](https://github.com/codacy/helm-ssm)
 - [Argo CD](https://argo-cd.readthedocs.io/en/stable/)
 
 As well as the following utilities:
@@ -34,7 +39,7 @@ As well as the following utilities:
 
 ## Prebuilt Images
 
-Size is approximately 2.8 GB.
+Size is approximately 3 GB.
 
 Images are available in the following repositories:
 - Docker Hub: [`docker.io/erhhung/al2023-devops`](https://hub.docker.com/repository/docker/erhhung/al2023-devops)

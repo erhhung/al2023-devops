@@ -27,7 +27,7 @@ echo "::group::Build Python 3.12"
   FTP="https://www.python.org/ftp/python"
   # determine the latest patch version
   ver=$(curl -s $FTP/ | sed -En 's/^.+href="('${VER/./\\.}'\..+)\/".+$/\1/p' | sort -Vr | head -1)
-  curl -sL $FTP/$ver/Python-$ver.tgz | tar -xz
+  curl -fsL $FTP/$ver/Python-$ver.tgz | tar -xz
   cd Python*
   # https://docs.python.org/3/using/configure.html
   ./configure -q \
@@ -82,7 +82,7 @@ echo "::group::Build GNU parallel"
 
   cd /tmp
   FTP="https://ftp.gnu.org/gnu/parallel"
-  curl -sL $FTP/parallel-latest.tar.bz2 | tar -xj
+  curl -fsL $FTP/parallel-latest.tar.bz2 | tar -xj
   cd parallel*
   ./configure --prefix=/usr/local -q
   make -sj$(nproc)
@@ -252,7 +252,7 @@ echo "::group::Install Linux utilities"
   REL="https://github.com/casey/just/releases/latest"
   VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
   URL="$REL/download/just-$VER-$(uname -m)-unknown-linux-musl.tar.gz"
-  curl -sSL $URL | tar -xz --no-same-owner just* completions/*.bash
+  curl -fsSL $URL | tar -xz --no-same-owner just* completions/*.bash
   mv just     /usr/local/bin
   mv */*.bash /usr/local/etc/bash_completion.d
   mv just.1   /usr/local/share/man/man1
@@ -262,7 +262,7 @@ echo "::group::Install Linux utilities"
   install_bin() {
     cd /usr/local/bin
     local bin=$1 src=$2
-    curl -sSLo $bin $src
+    curl -fsSLo $bin $src
     chmod +x $bin
     $bin --version
   }
@@ -284,7 +284,7 @@ echo "::group::Install Linux utilities"
     local pkg url
     for pkg in "$@"; do
       url="$EPEL/9/Everything/$(uname -m)/Packages/${pkg::1}/"
-      url+=$(curl -Ls $url | sed -En 's/^.+href="('${pkg}'-[0-9.]+[^"]+).+$/\1/p')
+      url+=$(curl -sL $url | sed -En 's/^.+href="('${pkg}'-[0-9.]+[^"]+).+$/\1/p')
       rpm -i $url
     done
   }
@@ -303,7 +303,7 @@ echo "::group::Install Python tools"
 ( set -uxo pipefail
 
   # install Poetry: https://python-poetry.org/docs/#installing-with-the-official-installer
-  curl -sSL https://install.python-poetry.org | \
+  curl -fsSL https://install.python-poetry.org | \
     POETRY_HOME="/usr/local/poetry" python3 -
   # /usr/local/poetry/bin is already in $PATH via Dockerfile ENV command
   poetry -V
@@ -341,7 +341,7 @@ set -e
 echo "::group::Install Node.js 22"
 ( set -uxo pipefail
 
-  curl -sSL https://rpm.nodesource.com/setup_22.x | bash -
+  curl -fsSL https://rpm.nodesource.com/setup_22.x | bash -
   dnf install -y nodejs
   dnf clean all
   rm -rf /var/log/* /var/cache/dnf
@@ -367,7 +367,7 @@ echo "::group::Install AWS tools"
 
   # install AWS CLI v2: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
   cd /tmp
-  curl -sSLo awscliv2.zip https://awscli.amazonaws.com/awscli-exe-linux-$(uname -m).zip
+  curl -fsSLo awscliv2.zip https://awscli.amazonaws.com/awscli-exe-linux-$(uname -m).zip
   unzip -q awscliv2.zip
   ./aws/install
   rm -rf aws awscliv2.zip
@@ -385,7 +385,7 @@ echo "::group::Install AWS tools"
   rm -rf /var/log/* /var/cache/dnf
   REL="https://s3.amazonaws.com/mountpoint-s3-release/latest"
   ARCH=$(uname -m | sed 's/aarch64/arm64/') # must be x86_64 or arm64
-  curl -sSL $REL/$ARCH/mount-s3.tar.gz | \
+  curl -fsSL $REL/$ARCH/mount-s3.tar.gz | \
     tar -xz -C /usr/local/bin --no-same-owner --strip 2 ./bin
   mount-s3 --version
 )
@@ -404,7 +404,7 @@ echo "::group::Install OCI image tools"
   # install Dive: https://github.com/wagoodman/dive#installation
   REL="https://github.com/wagoodman/dive/releases/latest"
   VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
-  curl -sSL $REL/download/dive_${VER}_linux_${ARCH}.tar.gz | \
+  curl -fsSL $REL/download/dive_${VER}_linux_${ARCH}.tar.gz | \
     tar -xz -C /usr/local/bin --no-same-owner dive
   dive --version
   (
@@ -412,7 +412,7 @@ echo "::group::Install OCI image tools"
     REL="https://github.com/mintoolkit/mint/releases/latest"
     # name must be *linux.* or *linux_arm64.*
     ARCH=${ARCH/%amd*/} ARCH=${ARCH/arm/_arm}
-    curl -sSL $REL/download/dist_linux${ARCH}.tar.gz | \
+    curl -fsSL $REL/download/dist_linux${ARCH}.tar.gz | \
       tar -xz -C /usr/local/bin --no-same-owner --strip 1 dist_linux${ARCH}/mint*
     mint --version
   )
@@ -433,13 +433,13 @@ echo "::group::Install Kubernetes tools"
   cd /usr/local/bin
   REL="https://dl.k8s.io/release"
   VER=$(curl -sL $REL/stable.txt)
-  curl -sSLO $REL/$VER/bin/linux/$ARCH/kubectl
+  curl -fsSLO $REL/$VER/bin/linux/$ARCH/kubectl
   chmod +x kubectl
   kubectl version --client
 
   # install Kubeconform: https://github.com/yannh/kubeconform#installation
   REL="https://github.com/yannh/kubeconform/releases/latest"
-  curl -sSL $REL/download/kubeconform-linux-${ARCH}.tar.gz | \
+  curl -fsSL $REL/download/kubeconform-linux-${ARCH}.tar.gz | \
     tar -xz -C /usr/local/bin --no-same-owner kubeconform
   ln -s /usr/local/bin/kubeconform /usr/local/bin/kubectl-conform
   kubectl conform -v
@@ -448,11 +448,15 @@ echo "::group::Install Kubernetes tools"
   cd /tmp
   REL="https://github.com/kubernetes-sigs/krew/releases/latest"
   KREW=krew-linux_${ARCH}
-  curl -sSL $REL/download/$KREW.tar.gz | tar -xz ./$KREW
+  curl -fsSL $REL/download/$KREW.tar.gz | tar -xz ./$KREW
   ./$KREW install krew
   rm -f ./$KREW
   # /root/.krew/bin is already in $PATH via Dockerfile ENV command
   kubectl krew version
+
+  # install kubectl-grep: https://github.com/guessi/kubectl-grep#installation
+  kubectl krew install grep
+  kubectl grep version --short
 
   # install kube-score: https://github.com/zegl/kube-score#installation
   kubectl krew install score
@@ -460,7 +464,7 @@ echo "::group::Install Kubernetes tools"
     echo "Installing the proper $ARCH binary for kube-score"
     REL="https://github.com/zegl/kube-score/releases/latest"
     VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
-    curl -sSL $REL/download/kube-score_${VER}_linux_${ARCH}.tar.gz | \
+    curl -fsSL $REL/download/kube-score_${VER}_linux_${ARCH}.tar.gz | \
       tar -C /root/.krew/store/score/* -xz
   fi
   kubectl score version
@@ -468,7 +472,7 @@ echo "::group::Install Kubernetes tools"
   # install Helm: https://helm.sh/docs/intro/install/
   REL="https://github.com/helm/helm/releases/latest"
   VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
-  curl -sSL https://get.helm.sh/helm-$VER-linux-${ARCH}.tar.gz | \
+  curl -fsSL https://get.helm.sh/helm-$VER-linux-${ARCH}.tar.gz | \
     tar -xz -C /usr/local/bin --no-same-owner --strip 1 linux-${ARCH}/helm
   helm version
 
@@ -483,7 +487,7 @@ echo "::group::Install Kubernetes tools"
     REL="$REPO/releases/latest"
     # name must be *linux.tgz or *linux-arm.tgz
     ARCH=${ARCH/%amd*/} ARCH=${ARCH/%arm*/-arm}
-    curl -sSL $REL/download/helm-ssm-linux${ARCH}.tgz | tar -xz
+    curl -fsSL $REL/download/helm-ssm-linux${ARCH}.tgz | tar -xz
     VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
     sed -i "s/\"dev\"/\"$VER\"/" plugin.yaml
     helm ssm --help
@@ -494,16 +498,23 @@ echo "::group::Install Kubernetes tools"
   # install Helmfile: https://github.com/helmfile/helmfile#installation
   REL="https://github.com/helmfile/helmfile/releases/latest"
   VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
-  curl -sSL $REL/download/helmfile_${VER}_linux_${ARCH}.tar.gz | \
+  curl -fsSL $REL/download/helmfile_${VER}_linux_${ARCH}.tar.gz | \
     tar -xz -C /usr/local/bin --no-same-owner helmfile
   helmfile --version
 
   # install Argo CD: https://argo-cd.readthedocs.io/en/stable/cli_installation/
   cd /usr/local/bin
   REL="https://github.com/argoproj/argo-cd/releases/latest"
-  curl -sSLo argocd $REL/download/argocd-linux-${ARCH}
+  curl -fsSLo argocd $REL/download/argocd-linux-${ARCH}
   chmod +x argocd
   argocd version --client --short
+
+  # install Argo Rollouts: https://argoproj.github.io/argo-rollouts/installation/
+  cd /usr/local/bin
+  REL="https://github.com/argoproj/argo-rollouts/releases/latest"
+  curl -fsSLo kubectl-argo-rollouts $REL/download/kubectl-argo-rollouts-linux-${ARCH}
+  chmod +x kubectl-argo-rollouts
+  kubectl argo rollouts version --short
 )
 echo "::endgroup::"
 EOT

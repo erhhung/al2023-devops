@@ -64,6 +64,8 @@ setver krew $(v=(`kubectl krew version | grep GitTag`); echo ${v[1]#v})
 setver kube-score $(v=(`kubectl score version`); echo ${v[2]%,})
 setver kubeconform $(v=`kubectl conform -v`; echo ${v#v})
 setver kubectl $(v=(`kubectl version --client | head -1`); echo ${v[2]#v})
+setver kubectl-argo-rollouts $(v=(`kubectl argo rollouts version --short`); v=${v[-1]#v}; echo ${v%+*})
+setver kubectl-grep $(v=`kubectl grep version --short`; echo ${v#v})
 setver md5sum $(v=(`md5sum --version | head -1`); echo ${v[-1]})
 setver mint $(v=`mint --version`; v=(${v//|/ }); echo ${v[-3]})
 gclone git://git.joeyh.name/moreutils
