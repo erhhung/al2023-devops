@@ -469,6 +469,20 @@ echo "::group::Install Kubernetes tools"
   fi
   kubectl score version
 
+  # install kind: https://kind.sigs.k8s.io/docs/user/quick-start#installation
+  cd /usr/local/bin
+  REL="https://github.com/kubernetes-sigs/kind/releases/latest"
+  curl -fsSLo kind $REL/download/kind-linux-${ARCH}
+  chmod +x kind
+  kind --version
+
+  # install vCluster: https://www.vcluster.com/install
+  cd /usr/local/bin
+  REL="https://github.com/loft-sh/vcluster/releases/latest"
+  curl -fsSLo vcluster $REL/download/vcluster-linux-${ARCH}
+  chmod +x vcluster
+  vcluster version
+
   # install Helm: https://helm.sh/docs/intro/install/
   REL="https://github.com/helm/helm/releases/latest"
   VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')

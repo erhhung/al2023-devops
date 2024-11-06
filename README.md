@@ -21,6 +21,7 @@ Includes the following components:
   - [kubectl-argo-rollouts](https://argo-rollouts.readthedocs.io/en/stable/)
   - [Kubeconform](https://github.com/yannh/kubeconform)
   - [kube-score](https://github.com/zegl/kube-score)
+- [kind](https://kind.sigs.k8s.io/) and [vCluster](https://www.vcluster.com/)
 - [Helm](https://helm.sh/)
   - [Helmfile](https://github.com/helmfile/helmfile)
   - [helm-diff](https://github.com/databus23/helm-diff)

@@ -31,7 +31,13 @@ eval "$(register-python-argcomplete pipx)"
 . <(kubectl-argo-rollouts completion bash)
 . <(argocd                completion bash)
 . <(helm                  completion bash)
-. <(yq                    completion bash)
+. <(kind                  completion bash)
+. <(vcluster              completion bash)
+#. <(yq                   completion bash)
+
+complete -o dirnames -f -X '!*.*json'       jq
+complete -o dirnames -f -X '!*.@(yaml|yml)' yq
+complete -C /usr/local/bin/aws_completer    aws
 
 # register completion for aliases as well
 complete -o default -F __start_kubectl k
@@ -39,4 +45,3 @@ complete -o default -F __start_kubectl-grep          kg
 complete -o default -F __start_kubectl-argo-rollouts ar
 complete -o default -F __start_argocd  a
 complete -o default -F __start_helm    h
-complete -C /usr/local/bin/aws_completer aws
