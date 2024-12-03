@@ -23,9 +23,10 @@ Includes the following components:
   - [kube-score](https://github.com/zegl/kube-score)
 - [kind](https://kind.sigs.k8s.io/) and [vCluster](https://www.vcluster.com/)
 - [Helm](https://helm.sh/)
-  - [Helmfile](https://github.com/helmfile/helmfile)
+  - [helm-docs](https://github.com/norwoodj/helm-docs)
   - [helm-diff](https://github.com/databus23/helm-diff)
   - [helm-ssm](https://github.com/codacy/helm-ssm)
+  - [Helmfile](https://github.com/helmfile/helmfile)
 - [Argo CD](https://argo-cd.readthedocs.io/en/stable/)
 
 As well as the following utilities:

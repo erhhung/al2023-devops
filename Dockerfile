@@ -490,6 +490,14 @@ echo "::group::Install Kubernetes tools"
     tar -xz -C /usr/local/bin --no-same-owner --strip 1 linux-${ARCH}/helm
   helm version
 
+  # install helm-docs: https://github.com/norwoodj/helm-docs#installation
+  REL="https://github.com/norwoodj/helm-docs/releases/latest"
+  VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
+  arch=$(uname -m | sed -e 's/aarch64/arm64/') # must be x86_64 or arm64
+  curl -fsSL $REL/download/helm-docs_${VER}_Linux_${arch}.tar.gz | \
+    tar -xz -C /usr/local/bin --no-same-owner helm-docs
+  helm-docs --version
+
   # install Helm plugins
   helm plugin install https://github.com/databus23/helm-diff
   helm diff version
