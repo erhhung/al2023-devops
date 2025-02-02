@@ -32,9 +32,10 @@ gclone() {
 
 # <repository>
 grelease() {
-  curl -Is $1/releases/latest | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p'
+  curl -Is "$1/releases/latest" | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p'
 }
 
+setver ansible $(v=(`ansible --version | head -1`); echo ${v[-1]%\]})
 setver argocd $(v=(`argocd version --client --short`); v=${v[-1]#v}; echo ${v%+*})
 setver aws $(v=(`aws --version`); echo ${v[0]#*/})
 setver bash ${BASH_VERSION/%\(*/}
@@ -84,7 +85,8 @@ setver poetry $(v=(`poetry --version`); echo ${v[2]%)})
 setver pwgen $(dnfver pwgen)
 setver pygments $(v=(`pygmentize -V`); echo ${v[2]%,})
 setver python $(v=(`python --version`); echo ${v[-1]})
-setver sops $(v=(`sops --version | head -1`); echo ${v[1]})
+setver sops $(v=(`sops --version | head -1`); echo ${v[-1]})
+setver sshpass $(v=(`sshpass -V | head -1`); echo ${v[-1]})
 setver tar $(v=(`tar --version | head -1`); echo ${v[-1]})
 setver tini $(v=(`tini --version`); echo ${v[2]})
 setver tmux $(v=(`tmux -V`); echo ${v[-1]})

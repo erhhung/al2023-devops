@@ -5,8 +5,8 @@ Multi-arch (x86_64/amd64 and aarch64/arm64) Docker image based on **Amazon Linux
 ## Bundled Tools
 
 Includes the following components:
-- [Python 3.12](https://www.python.org/downloads)
-- [Go 1.22](https://go.dev/dl)
+- [Python 3.13](https://www.python.org/downloads)
+- [Go 1.23](https://go.dev/dl)
 - [Node.js 22](https://nodejs.org/en/download)
 - [Poetry](https://python-poetry.org/)
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide)
@@ -28,6 +28,7 @@ Includes the following components:
   - [helm-ssm](https://github.com/codacy/helm-ssm)
   - [Helmfile](https://github.com/helmfile/helmfile)
 - [Argo CD](https://argo-cd.readthedocs.io/en/stable/)
+- [Ansible](https://docs.ansible.com/)
 
 As well as the following utilities:
 - [jq](https://stedolan.github.io/jq), [jo](https://github.com/jpmens/jo), and [yq](https://mikefarah.gitbook.io/yq)
@@ -41,7 +42,7 @@ As well as the following utilities:
 
 ## Prebuilt Images
 
-Size is approximately 3 GB.
+Size is approximately 3 GB _(too chubby, I know — see the [To-Do](#to-do) section)._
 
 Images are available in the following repositories:
 - Docker Hub: [`docker.io/erhhung/al2023-devops`](https://hub.docker.com/repository/docker/erhhung/al2023-devops)
@@ -51,5 +52,4 @@ Version information about the installed components can be found inside the Docke
 
 ## To-Do
 
-The current "All-in-One" image is getting bloated, so there's a need to create a slimmed-down image for
-CI/CD pipelines only, and a separate image for launching ad-hoc containers for manual administration.
+The current "All-in-One" image is getting too bloated, so there's a need to create specialized versions, like a slimmed-down image just for CI/CD pipelines, and a separate image for launching ad-hoc containers for manual administration and debugging. It's also unlikely that a single CI/CD pipeline stage would need all language environments, as Python and Go are especially chubby.

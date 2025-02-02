@@ -1,4 +1,5 @@
 .DS_Store
 NOTES
 *.log
-slim.report.json
+slim.*.json
+dive.*.json

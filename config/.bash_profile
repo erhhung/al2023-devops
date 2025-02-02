@@ -11,6 +11,7 @@ alias l='less'
 alias  k='kubectl'
 alias kg='kubectl-grep'
 alias ar='kubectl-argo-rollouts'
+alias ap='ansible-playbook'
 alias  a='argocd'
 alias  h='helm'
 

@@ -14,16 +14,16 @@ echo "::group::Install common build tools"
 echo "::endgroup::"
 EOT
 
-# build Python 3.12: https://www.build-python-from-source.com/
+# build Python 3.13: https://www.build-python-from-source.com/
 RUN <<'EOT'
 set -e
-echo "::group::Build Python 3.12"
+echo "::group::Build Python 3.13"
 ( set -uxo pipefail
 
   cd /tmp
   dnf install -y  openssl-devel bzip2-devel xz-devel libffi-devel \
     libuuid-devel gdbm-devel readline-devel tk-devel sqlite-devel
-  VER="3.12"
+  VER="3.13"
   FTP="https://www.python.org/ftp/python"
   # determine the latest patch version
   ver=$(curl -s $FTP/ | sed -En 's/^.+href="('${VER/./\\.}'\..+)\/".+$/\1/p' | sort -Vr | head -1)
@@ -199,7 +199,7 @@ FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS final
 # =======================================================
 
 #LABEL name="al2023-devops"
-#LABEL description="Amazon Linux 2023 with Python 3.12, Go 1.22, Node.js 22, AWS CLI, Mountpoint for S3, CDK, CDK8s, Docker, Kubectl, Krew, Helm, Argo CD, and utilities like jq, jo, yq, jsonnet, and Just"
+#LABEL description="Amazon Linux 2023 with Python 3.13, Go 1.23, Node.js 22, AWS CLI, Mountpoint for S3, CDK, CDK8s, Docker, Kubectl, Krew, Helm, Argo CD, and utilities like jq, jo, yq, jsonnet, and Just"
 #LABEL maintainer="erhhung@gmail.com"
 
 ENV TERM="xterm-256color"
@@ -229,8 +229,8 @@ echo "::group::Install Linux utilities"
   # install common utilities (procps provides "free" command)
   # perl-IPC-Run and perl-Time-HiRes are required by moreutils
   dnf install -y git wget tar xz bzip2 gzip unzip man bash-completion \
-    which findutils pwgen gettext procps openssl nmap tmux vim bc \
-    glibc-locale-source glibc-langpack-en perl-IPC-Run perl-Time-HiRes
+    which findutils pwgen gettext procps sshpass openssl nmap tmux vim \
+    bc glibc-locale-source glibc-langpack-en perl-IPC-Run perl-Time-HiRes
   dnf clean all
   rm -rf /var/log/* /var/cache/dnf
   alternatives --install /usr/local/bin/vi vi /usr/bin/vim 1
@@ -308,8 +308,8 @@ echo "::group::Install Python tools"
   # /usr/local/poetry/bin is already in $PATH via Dockerfile ENV command
   poetry -V
 
-  # install pipx, Pygments and ansitable
-  pip3 install --no-cache-dir --root-user-action=ignore pipx pygments colored ansitable
+  # install pipx, Pygments, ansitable, and Ansible
+  pip3 install --no-cache-dir --root-user-action=ignore pipx pygments colored ansitable ansible
   pipx ensurepath --global && pipx --version
   rm -rf /root/.cache
   pygmentize -V
@@ -317,10 +317,10 @@ echo "::group::Install Python tools"
 echo "::endgroup::"
 EOT
 
-# install Golang 1.22
+# install Golang 1.23
 RUN <<'EOT'
 set -e
-echo "::group::Install Golang 1.22"
+echo "::group::Install Golang 1.23"
 ( set -uxo pipefail
 
   dnf install -y golang
