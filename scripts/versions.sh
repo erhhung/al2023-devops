@@ -15,16 +15,19 @@
 # shellcheck disable=SC2185 # find doesn't have default path
 
 echo "::group::Generate .versions.json"
-trap 'echo "::endgroup::"' EXIT
+
+TMP=()
+on_exit() {
+  rm -rf "${TMP[@]}"
+  echo "::endgroup::"
+}
+trap on_exit EXIT
 set -euxo pipefail
 
 # Ansible requires locale to be set
 export $(xargs < /etc/locale.conf)
 
-TMP=()
-trap 'rm -rf "${TMP[@]}"' EXIT
-
-OUT=/root/.versions.json
+OUT="/root/.versions.json"
 # create empty object
 jo < /dev/null > $OUT
 

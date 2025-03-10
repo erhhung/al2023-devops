@@ -9,6 +9,7 @@ set -euxo pipefail
 cd /tmp
 git clone -q https://github.com/jpmens/jo
 cd jo
+
 autoreconf -i
 ./configure --prefix=/usr/local -q
 make -j"$(nproc)" check

@@ -10,6 +10,7 @@ cd /tmp
 FTP="https://ftp.gnu.org/gnu/parallel"
 curl -fsL $FTP/parallel-latest.tar.bz2 | tar -xj
 cd parallel*
+
 ./configure --prefix=/usr/local -q
 make -sj"$(nproc)"
 # installs into (empty) dirs under /usr/local: /bin, /share/man/man1,

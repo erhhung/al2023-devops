@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # shellcheck disable=SC2148 # Tips depend on target shell
+# shellcheck disable=SC2046 # Quote to prevent word splitting
 
 echo "::group::Install infra tools"
 trap 'echo "::endgroup::"' EXIT
@@ -19,4 +20,5 @@ terraform --version
 pip3 install --no-cache-dir --root-user-action=ignore \
   ansible jsonpatch kubernetes kubernetes-validate
 rm -rf /root/.cache
+export $(xargs < /etc/locale.conf)
 ansible --version
