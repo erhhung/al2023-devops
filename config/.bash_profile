@@ -18,6 +18,7 @@ alias  k='kubectl'
 alias kg='kubectl-grep'
 alias ar='kubectl-argo-rollouts'
 alias ap='ansible-playbook'
+alias tf='terraform'
 alias  a='argocd'
 alias  h='helm'
 

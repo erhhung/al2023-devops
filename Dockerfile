@@ -204,10 +204,14 @@ FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS final
 
 ENV TERM="xterm-256color"
 ENV LANGUAGE="en_US"
+ENV LANG="en_US.UTF-8"
 ENV PYGMENTSTYLE="base16-materia"
-ENV CDK8S_CHECK_UPGRADE="false"
-ENV JSII_SILENCE_WARNING_DEPRECATED_NODE_VERSION="1"
 ENV PATH="/usr/local/poetry/bin:$PATH:/root/.krew/bin"
+ENV JSII_SILENCE_WARNING_DEPRECATED_NODE_VERSION="1"
+ENV TF_CLI_ARGS_init="-compact-warnings"
+ENV TF_CLI_ARGS_plan="-compact-warnings"
+ENV TF_CLI_ARGS_apply="-compact-warnings"
+ENV CDK8S_CHECK_UPGRADE="false"
 
 # Copy all consolidated files
 COPY --from=consolidator / /
@@ -308,10 +312,9 @@ echo "::group::Install Python tools"
   # /usr/local/poetry/bin is already in $PATH via Dockerfile ENV command
   poetry -V
 
-  # install pipx, Pygments, ansitable, and Ansible
+  # install pipx, Pygments, and ansitable
   pip3 install --no-cache-dir --root-user-action=ignore \
-    pipx pygments colored ansitable ansible \
-    jsonpatch kubernetes kubernetes-validate
+    pipx pygments colored ansitable
   rm -rf /root/.cache
   pipx --version
   pygmentize -V
@@ -390,6 +393,31 @@ echo "::group::Install AWS tools"
   curl -fsSL $REL/$ARCH/mount-s3.tar.gz | \
     tar -xz -C /usr/local/bin --no-same-owner --strip 2 ./bin
   mount-s3 --version
+)
+echo "::endgroup::"
+EOT
+
+# install infra tools
+RUN <<'EOT'
+set -e
+echo "::group::Install infra tools"
+( set -uxo pipefail
+
+  # install Terraform
+  # https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli#install-terraform
+  dnf install -y dnf-plugins-core
+  dnf config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+  dnf install -y terraform
+  dnf clean all
+  rm -rf /var/log/* /var/cache/dnf
+  terraform --version
+
+  # install Ansible and its Kubernetes dependencies
+  # https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#pip-install
+  pip3 install --no-cache-dir --root-user-action=ignore \
+    ansible jsonpatch kubernetes kubernetes-validate
+  rm -rf /root/.cache
+  ansible --version
 )
 echo "::endgroup::"
 EOT
