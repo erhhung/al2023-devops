@@ -14,9 +14,11 @@
 # shellcheck disable=SC2178 # Variable was used as an array
 # shellcheck disable=SC2185 # find doesn't have default path
 
-set -euo pipefail
+echo "::group::Generate .versions.json"
+trap 'echo "::endgroup::"' EXIT
+set -euxo pipefail
 
-# ansible requires locale to be set
+# Ansible requires locale to be set
 export $(xargs < /etc/locale.conf)
 
 TMP=()
