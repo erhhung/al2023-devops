@@ -309,9 +309,11 @@ echo "::group::Install Python tools"
   poetry -V
 
   # install pipx, Pygments, ansitable, and Ansible
-  pip3 install --no-cache-dir --root-user-action=ignore pipx pygments colored ansitable ansible
-  pipx ensurepath --global && pipx --version
+  pip3 install --no-cache-dir --root-user-action=ignore \
+    pipx pygments colored ansitable ansible \
+    jsonpatch kubernetes kubernetes-validate
   rm -rf /root/.cache
+  pipx --version
   pygmentize -V
 )
 echo "::endgroup::"

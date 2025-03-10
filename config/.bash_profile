@@ -1,3 +1,9 @@
+# Emacs -*-Shell-Script-*- Mode
+
+# shellcheck disable=SC2148 # Tips depend on target shell
+# shellcheck disable=SC1091 # Not following: not input file
+# shellcheck disable=SC1090 # Can't follow non-const source
+
 alias pwd='printf "%q\n" "$(builtin pwd)"'
 alias cdd='cd - > /dev/null'
 alias ls='ls --color=auto'
@@ -18,7 +24,7 @@ alias  h='helm'
 # source Bash completion scripts
 . /usr/share/bash-completion/bash_completion
 for f in /usr/local/etc/bash_completion.d/*; do
-  source $f
+  . "$f"
 done
 
 eval "$(register-python-argcomplete pipx)"

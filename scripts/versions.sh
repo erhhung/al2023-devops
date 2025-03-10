@@ -1,8 +1,23 @@
 #!/usr/bin/env bash
-set -euo pipefail
 
 # this script is meant to be executed in the al2023-devops
 # container to extract the versions of all tools installed
+
+# shellcheck disable=SC1091 # Not following: not input file
+# shellcheck disable=SC2086 # Double quote prevent globbing
+# shellcheck disable=SC2206 # Quote to prevent word splitting
+# shellcheck disable=SC2046 # Quote to prevent word splitting
+# shellcheck disable=SC2006 # Prefer $(...) over legacy `...`
+# shellcheck disable=SC2207 # Prefer mapfile to split output
+# shellcheck disable=SC2155 # Declare and assign separately
+# shellcheck disable=SC2128 # Expanding array without index
+# shellcheck disable=SC2178 # Variable was used as an array
+# shellcheck disable=SC2185 # find doesn't have default path
+
+set -euo pipefail
+
+# ansible requires locale to be set
+export $(xargs < /etc/locale.conf)
 
 TMP=()
 trap 'rm -rf "${TMP[@]}"' EXIT
@@ -13,21 +28,21 @@ jo < /dev/null > $OUT
 
 # <component> <version>
 setver() {
-  echo >&2 $1: $2
-  jo -- -s $1="$2" | jq -sSM '.[0]*.[1]' $OUT - | sponge $OUT
+  echo >&2 "$1: $2"
+  jo -- -s "$1"="$2" | jq -sSM '.[0]*.[1]' $OUT - | sponge $OUT
 }
 
 # <package>
 dnfver() {
-  local v=(`dnf list installed $1 | tail -1`)
-  echo ${v[1]%.amzn*}
+  local v=(`dnf list installed "$1" | tail -1`)
+  echo "${v[1]%.amzn*}"
 }
 
 # <repository>
 gclone() {
   local dir=/tmp/$(basename $1)
-  TMP+=($dir); rm -rf $dir
-  git clone --bare -q $1 $dir && cd $dir
+  TMP+=("$dir");  rm -rf "$dir"
+  git clone --bare -q $1 "$dir" && cd "$dir"
 }
 
 # <repository>
