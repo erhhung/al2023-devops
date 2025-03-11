@@ -50,7 +50,7 @@ As well as the following utilities:
 
 ## Prebuilt Images
 
-Size is approximately 3 GB _(too chubby, I know — see the [To-Do](#to-do) section)._
+Size is approximately 4 GB _(too chubby, I know — see the [To-Do](#to-do) section)._
 
 Images are available in the following repositories:
 - Docker Hub: [`docker.io/erhhung/al2023-devops`](https://hub.docker.com/repository/docker/erhhung/al2023-devops)
