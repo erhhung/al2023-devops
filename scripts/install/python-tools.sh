@@ -12,6 +12,10 @@ curl -fsSL https://install.python-poetry.org | \
 # /usr/local/poetry/bin is already in $PATH via Dockerfile ENV command
 poetry -V
 
+# install uv: https://docs.astral.sh/uv/getting-started/installation/
+curl -fsSL https://astral.sh/uv/install.sh | XDG_BIN_HOME=/usr/local/bin sh
+uv -V
+
 # install pipx, Pygments, and ansitable
 pip3 install --no-cache-dir --root-user-action=ignore \
   pipx pygments colored ansitable

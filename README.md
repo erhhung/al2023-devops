@@ -8,6 +8,7 @@ Includes the following components:
 - [Python 3.13](https://www.python.org/downloads)
   - [Poetry](https://python-poetry.org/)
   - [pipx](https://pipx.pypa.io/)
+  - [uv](https://docs.astral.sh/uv/)
 - [Go 1.23](https://go.dev/dl)
 - [Node.js 22](https://nodejs.org/en/download)
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide)
