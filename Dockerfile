@@ -53,7 +53,7 @@ FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS final
 # =======================================================
 
 #LABEL name="al2023-devops"
-#LABEL description="Amazon Linux 2023 with Python 3.13, Go 1.23, Node.js 22, AWS CLI, CDK, CDK8s, Terraform, Ansible, Docker, Kubectl, Krew, Helm, Argo CD, and utilities like jq, jo, yq, jsonnet, and Just"
+#LABEL description="Amazon Linux 2023 with Python 3.13, Go 1.24, Node.js 22, AWS CLI, CDK, CDK8s, Terraform, Ansible, Docker, Kubectl, Krew, Helm, Argo CD, and utilities like jq, jo, yq, jsonnet, and Just"
 #LABEL maintainer="erhhung@gmail.com"
 
 ENV TERM="xterm-256color"
@@ -76,7 +76,7 @@ RUN --mount=type=bind,source=scripts/install/linux-utils.sh,target=/tmp/install.
 # install Python tools
 RUN --mount=type=bind,source=scripts/install/python-tools.sh,target=/tmp/install.sh /tmp/install.sh
 
-# install Go 1.23
+# install Go 1.24
 RUN --mount=type=bind,source=scripts/install/go.sh,target=/tmp/install.sh /tmp/install.sh
 
 # install Node.js 22

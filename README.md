@@ -9,7 +9,7 @@ Includes the following components:
   - [Poetry](https://python-poetry.org/)
   - [pipx](https://pipx.pypa.io/)
   - [uv](https://docs.astral.sh/uv/)
-- [Go 1.23](https://go.dev/dl)
+- [Go 1.24](https://go.dev/dl)
 - [Node.js 22](https://nodejs.org/en/download)
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide)
 - [AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide) and

@@ -82,8 +82,12 @@ EOT
 # show details of certificate chain from
 # stdin or from PEM file or from website
 cert() {
-  [ "$1" ] || {
-    cat <<EOT
+  local stdin host port args
+  if [ -p /dev/stdin ]; then
+    stdin=$(cat)
+  else
+    [ "$1" ] || {
+      cat <<EOT
 
 Show details of certificate chain from
 stdin or from PEM file or from website
@@ -99,15 +103,12 @@ cert   8443             # localhost:8443
 cert   .                # localhost:443
 
 EOT
-    return 0
-  }
-
-  local stdin host port args
-  if [ -p /dev/stdin ]; then
-    stdin=$(cat)
-  else
+      return 0
+    }
     host=${1:-localhost}
     [ "$host" == . ] && host=localhost
+    # strip scheme & path if is an URL
+    host=${host#*://}; host=${host%%/*}
     port=${2:-443}
 
     # handle host:port syntax
