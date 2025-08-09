@@ -84,6 +84,7 @@ helm-docs --version
 # install Helm plugins
 helm plugin install https://github.com/databus23/helm-diff
 helm diff version
+helm plugin install https://github.com/aslafy-z/helm-git
 (
   cd /root/.local/share/helm/plugins
   REPO="https://github.com/codacy/helm-ssm"

@@ -36,6 +36,12 @@ export $(xargs < /etc/locale.conf)
 localedef -i $LANGUAGE -f UTF-8 $LANGUAGE.UTF-8
 find /usr/{lib,share}/locale/* -maxdepth 0 -type d -not -iname "$LANGUAGE*" -exec rm -rf {} \;
 
+# install wait4x: https://github.com/wait4x/wait4x
+REL="https://github.com/wait4x/wait4x/releases/latest"
+URL="$REL/download/wait4x-linux-$ARCH.tar.gz"
+curl -fsSL $URL | tar -xz -C /usr/local/bin --no-same-owner wait4x
+wait4x version
+
 # install just: https://github.com/casey/just#pre-built-binaries
 cd /tmp
 REL="https://github.com/casey/just/releases/latest"

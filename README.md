@@ -32,6 +32,7 @@ Includes the following components:
 - [Helm](https://helm.sh/)
   - [helm-docs](https://github.com/norwoodj/helm-docs)
   - [helm-diff](https://github.com/databus23/helm-diff)
+  - [helm-git](https://github.com/aslafy-z/helm-git)
   - [helm-ssm](https://github.com/codacy/helm-ssm)
   - [Helmfile](https://github.com/helmfile/helmfile)
 - [Argo CD](https://argo-cd.readthedocs.io/en/stable/)
@@ -46,6 +47,7 @@ As well as the following utilities:
   `md5sum`, `envsubst` (GNU gettext), `sponge`/`ts`/... ([moreutils](https://joeyh.name/code/moreutils/)), `bc`,
   `openssl`, `nmap`, `tmux`, `vim`
 - [Pygments](https://pygments.org/)
+- [Wait4X](https://wait4x.dev/)
 - [Just](https://just.systems/man/en)
 - [Tini](https://github.com/krallin/tini)
 
