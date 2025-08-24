@@ -14,7 +14,12 @@ dnf install -y golang gpgme-devel libassuan-devel
 # package, so we need to build it from source
 command -v btrfs &> /dev/null || (
 
-  dnf install -y python3-devel e2fsprogs-devel \
+  # install the python-devel package
+  # matching current python3 version
+  python_devel=$(python3 -V | sed -En 's/^[^1-9]+([1-9]+\.[0-9]+).*$/python\1-devel/p')
+  pip3 install setuptools
+
+  dnf install -y "$python_devel" e2fsprogs-devel \
     libblkid-devel libuuid-devel libudev-devel lzo-devel
   git clone git://git.kernel.org/pub/scm/linux/kernel/git/kdave/btrfs-progs.git
   cd btrfs-progs
@@ -31,7 +36,7 @@ git clone https://github.com/containers/skopeo.git
 cd skopeo
 
 # set app version to non-dev release
-sed -Ei 's/^(.+Version[^-]+).+$/\1"/' ./version/version.go
+sed -Ei 's/^(.+Version = "[^-]+).+"$/\1"/' version/version.go
 export DISABLE_DOCS=1
 make -sj"$(nproc)"
 # installs into (empty) dirs under /usr/local: /bin,

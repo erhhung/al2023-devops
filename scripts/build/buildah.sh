@@ -15,7 +15,12 @@ dnf install -y golang go-md2man glib2-devel \
 # package, so we need to build it from source
 command -v btrfs &> /dev/null || (
 
-  dnf install -y python3-devel e2fsprogs-devel \
+  # install the python-devel package
+  # matching current python3 version
+  python_devel=$(python3 -V | sed -En 's/^[^1-9]+([1-9]+\.[0-9]+).*$/python\1-devel/p')
+  pip3 install setuptools
+
+  dnf install -y "$python_devel" e2fsprogs-devel \
     libblkid-devel libuuid-devel libudev-devel lzo-devel
   git clone git://git.kernel.org/pub/scm/linux/kernel/git/kdave/btrfs-progs.git
   cd btrfs-progs
@@ -32,13 +37,13 @@ git clone https://github.com/containers/buildah.git
 cd buildah
 
 # set app version to non-dev release
-sed -Ei 's/^(.+Version[^-]+).+$/\1"/' ./define/types.go
+sed -Ei 's/^(.+Version = "[^-]+).+"$/\1"/' define/types.go
 make -sj"$(nproc)"
-# installs into (empty) dirs under /usr/local: /bin, /share/man/man1,
-#   /share/bash-completion/completions, /share/zsh/site-functions
+# installs into (empty) dirs under
+# /usr/local: /bin, /share/man/man1
 make install
 buildah --version
 
 # NOTE: required package dependencies runc, cni-plugins,
 # and containers-common will be installed into the final
-# image by install/oci-tools.sh
+# image by scripts/install/oci-tools.sh

@@ -12,7 +12,8 @@ git clone -q git://git.joeyh.name/moreutils
 cd moreutils
 
 DOCBOOKXSL=/usr/share/sgml/docbook/xsl-stylesheets make -sj"$(nproc)"
-# installs into (empty) dirs under /usr/local: /bin, /share/man/man1
+# installs into (empty) dirs under
+# /usr/local: /bin, /share/man/man1
 PREFIX=/usr/local make install 2> /dev/null
 # "chronic" requires perl-IPC-Run
 # "ts" requires perl-Time-HiRes
