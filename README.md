@@ -8,7 +8,7 @@ Includes the following components:
 - [Python 3.13](https://www.python.org/downloads)
   - [Poetry](https://python-poetry.org/)
   - [pipx](https://pipx.pypa.io/)
-  - [uv](https://docs.astral.sh/uv/)
+  - [uv](https://docs.astral.sh/uv)
 - [Go 1.24](https://go.dev/dl)
 - [Node.js 22](https://nodejs.org/en/download)
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide)
@@ -20,12 +20,14 @@ Includes the following components:
 - [Docker CLI](https://www.docker.com/products/cli)
   - [BuildX](https://github.com/docker/buildx)
   - [Compose](https://docs.docker.com/compose)
+- [Buildah](https://github.com/containers/buildah) and
+  [Skopeo](https://github.com/containers/skopeo)
 - [Dive](https://github.com/wagoodman/dive) and
   [MinToolkit/Mint](https://github.com/mintoolkit/mint)
 - [Kubectl](https://kubernetes.io/docs/tasks/tools) and
   [Krew](https://krew.sigs.k8s.io/)
   - [kubectl-grep](https://github.com/guessi/kubectl-grep)
-  - [kubectl-argo-rollouts](https://argo-rollouts.readthedocs.io/en/stable/)
+  - [kubectl-argo-rollouts](https://argo-rollouts.readthedocs.io/)
   - [Kubeconform](https://github.com/yannh/kubeconform)
   - [kube-score](https://github.com/zegl/kube-score)
 - [kind](https://kind.sigs.k8s.io/) and [vCluster](https://www.vcluster.com/)
@@ -35,7 +37,7 @@ Includes the following components:
   - [helm-git](https://github.com/aslafy-z/helm-git)
   - [helm-ssm](https://github.com/codacy/helm-ssm)
   - [Helmfile](https://github.com/helmfile/helmfile)
-- [Argo CD](https://argo-cd.readthedocs.io/en/stable/)
+- [Argo CD](https://argo-cd.readthedocs.io/)
 
 As well as the following utilities:
 - [jq](https://stedolan.github.io/jq),

@@ -2,16 +2,19 @@
 FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS builder
 # =========================================================
 
+# NOTE: AL2023 GA version includes components from Fedora 34, 35, and 36:
+# https://docs.aws.amazon.com/linux/al2023/ug/relationship-to-fedora.html
+
 # install common build tools
 RUN --mount=type=bind,source=scripts/build/common.sh,target=/tmp/build.sh /tmp/build.sh
 
 # build Python 3.13: https://www.build-python-from-source.com/
 RUN --mount=type=bind,source=scripts/build/python.sh,target=/tmp/build.sh /tmp/build.sh
 
-# build moreutils: https://joeyh.name/code/moreutils/
+# build moreutils: https://joeyh.name/code/moreutils
 RUN --mount=type=bind,source=scripts/build/moreutils.sh,target=/tmp/build.sh /tmp/build.sh
 
-# build GNU parallel: https://www.gnu.org/software/parallel/
+# build GNU parallel: https://www.gnu.org/software/parallel
 RUN --mount=type=bind,source=scripts/build/parallel.sh,target=/tmp/build.sh /tmp/build.sh
 
 # build tini: https://github.com/krallin/tini
@@ -19,6 +22,12 @@ RUN --mount=type=bind,source=scripts/build/tini.sh,target=/tmp/build.sh /tmp/bui
 
 # build jo: https://github.com/jpmens/jo
 RUN --mount=type=bind,source=scripts/build/jo.sh,target=/tmp/build.sh /tmp/build.sh
+
+# build buildah: https://github.com/containers/buildah
+RUN --mount=type=bind,source=scripts/build/buildah.sh,target=/tmp/build.sh /tmp/build.sh
+
+# build skopeo: https://github.com/containers/skopeo
+RUN --mount=type=bind,source=scripts/build/skopeo.sh,target=/tmp/build.sh /tmp/build.sh
 
 # copy Docker binaries, including BuildX and Compose
 COPY --from=public.ecr.aws/docker/library/docker:dind /usr/local/bin/docker                  /usr/local/bin/
@@ -57,7 +66,7 @@ FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS final
 #LABEL maintainer="erhhung@gmail.com"
 
 ENV TERM="xterm-256color"
-ENV PYGMENTSTYLE="base16-materia"
+ENV PYGMENT_STYLE="one-dark"
 ENV PATH="/usr/local/poetry/bin:$PATH:/root/.krew/bin"
 ENV JSII_SILENCE_WARNING_DEPRECATED_NODE_VERSION="1"
 ENV CDK8S_CHECK_UPGRADE="false"

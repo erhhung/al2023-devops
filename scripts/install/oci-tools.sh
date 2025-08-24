@@ -24,3 +24,21 @@ dive --version
     tar -xz -C /usr/local/bin --no-same-owner --strip 1 "dist_linux${ARCH}"/mint*
   mint --version
 )
+
+# runc and CNI plugins are required by buildah
+# (CNI plugins are installed into /opt/cni/bin)
+# https://github.com/containers/buildah/tree/main/install.md#system-requirements
+dnf -y install runc cni-plugins
+dnf clean all
+rm -rf /var/log/* /var/cache/dnf
+runc --version
+
+# install containers-common package from Fedora
+rpm -i --nosignature https://dl.fedoraproject.org/pub/fedora/linux/releases/41/Everything/"$(
+                      uname -m)"/os/Packages/c/containers-common-0.60.4-4.fc41.noarch.rpm
+# use the vfs storage driver to avoid "overlay is not supported
+# over overlayfs" error in an already containerized environment
+cat <<EOF > /etc/containers/storage.conf
+[storage]
+driver = "vfs"
+EOF
