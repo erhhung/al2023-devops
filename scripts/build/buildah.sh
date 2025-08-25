@@ -44,9 +44,9 @@ make -sj"$(nproc)"
 make install
 buildah --version
 
-# NOTE: required package dependencies runc, cni-plugins,
-# and containers-common will be installed into the final
-# image by scripts/install/oci-tools.sh
+# NOTE: required runtime dependencies like runc, crun,
+# cni-plugins, and containers-common will be installed
+# into the final image by scripts/install/oci-tools.sh
 
 cd /tmp
 # netavark is required at runtime for networking:

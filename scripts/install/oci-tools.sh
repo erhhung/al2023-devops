@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # shellcheck disable=SC2148 # Tips depend on target shell
+# shellcheck disable=SC2031 # var was modified in subshell
 
 echo "::group::Install OCI image tools"
 trap 'echo "::endgroup::"' EXIT
@@ -32,6 +33,13 @@ dnf -y install runc cni-plugins
 dnf clean all
 rm -rf /var/log/* /var/cache/dnf
 runc --version
+
+# install crun: https://github.com/containers/crun
+REL="https://github.com/containers/crun/releases/latest"
+VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
+curl -fsSLo crun "$REL/download/crun-$VER-linux-$ARCH"
+chmod +x crun && mv crun /usr/local/bin
+crun --version
 
 # install containers-common package from Fedora
 rpm -i "https://dl.fedoraproject.org/pub/fedora/linux/releases/41/Everything/$(
