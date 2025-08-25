@@ -43,6 +43,7 @@ FROM scratch AS consolidator
 # copy directories installed to in the builder stage
 COPY --from=builder /usr/local/bin/         /usr/local/bin/
 COPY --from=builder /usr/local/lib/         /usr/local/lib/
+COPY --from=builder /usr/local/libexec/     /usr/local/libexec/
 COPY --from=builder /usr/local/include/     /usr/local/include/
 COPY --from=builder /usr/local/share/       /usr/local/share/
 COPY --from=builder /usr/local/etc/         /usr/local/etc/

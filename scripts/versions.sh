@@ -97,6 +97,7 @@ setver mint $(v=`mint --version`; v=(${v//|/ }); echo ${v[4]#x.})
 gclone git://git.joeyh.name/moreutils
 setver moreutils $(git describe --abbrev=0)
 setver mount-s3 $(v=(`mount-s3 --version`); echo ${v[-1]})
+setver netavark $(v=(`/usr/local/libexec/podman/netavark --version`); echo ${v[-1]})
 setver nmap $(v=(`nmap --version | head -1`); echo ${v[2]})
 setver node $(v=`node --version`; echo ${v#v})
 setver npm $(npm --version)

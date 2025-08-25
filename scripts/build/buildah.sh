@@ -47,3 +47,18 @@ buildah --version
 # NOTE: required package dependencies runc, cni-plugins,
 # and containers-common will be installed into the final
 # image by scripts/install/oci-tools.sh
+
+cd /tmp
+# netavark is required at runtime for networking:
+# https://github.com/containers/netavark#build
+dnf install -y rust cargo protobuf-compiler go-md2man
+git clone https://github.com/containers/netavark.git
+cd netavark
+
+# set app version to non-dev release
+sed -Ei 's/^(version = "[^-]+).+"$/\1"/' Cargo.toml
+make -sj"$(nproc)"
+# installs into (empty) dirs under /usr/local: /libexec/podman,
+#   /lib/systemd/system, /share/man/{man1,man7}
+make install
+/usr/local/libexec/podman/netavark --version

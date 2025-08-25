@@ -34,8 +34,9 @@ rm -rf /var/log/* /var/cache/dnf
 runc --version
 
 # install containers-common package from Fedora
-rpm -i --nosignature https://dl.fedoraproject.org/pub/fedora/linux/releases/41/Everything/"$(
-                      uname -m)"/os/Packages/c/containers-common-0.60.4-4.fc41.noarch.rpm
+rpm -i "https://dl.fedoraproject.org/pub/fedora/linux/releases/41/Everything/$(
+          uname -m)/os/Packages/c/containers-common-0.60.4-4.fc41.noarch.rpm" \
+    --nosignature
 
 # use the vfs storage driver to avoid "overlay is not supported
 # over overlayfs" error in an already containerized environment;
