@@ -17,9 +17,10 @@ dnf check-update
 
 # install common utilities (procps provides "free" command)
 # perl-IPC-Run and perl-Time-HiRes are required by moreutils
-dnf install -y git wget tar xz bzip2 gzip unzip man bc bash-completion which   \
-  findutils iproute iputils dnsutils nmap gettext procps pwgen sshpass openssl \
-  vim tmux glibc-locale-source glibc-langpack-en perl-IPC-Run perl-Time-HiRes
+dnf install -y git wget tar xz bzip2 gzip unzip man bc bash-completion \
+  which findutils iproute iputils dnsutils net-tools nmap gettext procps \
+  pwgen sshpass openssl vim tmux glibc-locale-source glibc-langpack-en \
+  perl-IPC-Run perl-Time-HiRes
 dnf clean all
 rm -rf /var/log/* /var/cache/dnf
 alternatives --install /usr/local/bin/vi vi /usr/bin/vim 1

@@ -43,11 +43,13 @@ As well as the following utilities:
 - [jq](https://stedolan.github.io/jq),
   [jo](https://github.com/jpmens/jo), and
   [yq](https://mikefarah.gitbook.io/yq)
+- [gomplate](https://docs.gomplate.ca/)
 - [jsonnet](https://jsonnet.org/)
 - [GNU Parallel](https://savannah.gnu.org/projects/parallel)
-- Common Linux utilities: `which`, `find`, `free`, `tar`, `gzip`, `xz`, `bzip`, `unzip`, `wget`, `git`, `pwgen`,  
-  `md5sum`, `envsubst` (GNU gettext), `sponge`/`ts`/... ([moreutils](https://joeyh.name/code/moreutils/)), `bc`,
-  `openssl`, `nmap`, `tmux`, `vim`
+- Common Linux utilities: `which`, `find`, `free`, `tar`, `gzip`, `xz`, `bzip`, `unzip`, `wget`, `git`,  
+  `pwgen`, `md5sum`, `envsubst` (GNU gettext), `sponge`/`ts`/... ([moreutils](https://joeyh.name/code/moreutils/)), `bc`,
+  `openssl`, `dig`,  
+  `nc`, `nmap`, `tmux`, `vim`
 - [Pygments](https://pygments.org/)
 - [Wait4X](https://wait4x.dev/)
 - [Just](https://just.systems/man/en)

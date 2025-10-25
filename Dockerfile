@@ -29,6 +29,9 @@ RUN --mount=type=bind,source=scripts/build/buildah.sh,target=/tmp/build.sh /tmp/
 # build skopeo: https://github.com/containers/skopeo
 RUN --mount=type=bind,source=scripts/build/skopeo.sh,target=/tmp/build.sh /tmp/build.sh
 
+# copy gomplate: https://docs.gomplate.ca/installing#use-inside-a-container
+COPY --from=hairyhenderson/gomplate:stable /gomplate /usr/local/bin/
+
 # copy Docker binaries, including BuildX and Compose
 COPY --from=public.ecr.aws/docker/library/docker:dind /usr/local/bin/docker                  /usr/local/bin/
 COPY --from=public.ecr.aws/docker/library/docker:dind /usr/local/libexec/docker/cli-plugins/ /usr/local/bin/
