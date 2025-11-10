@@ -9,7 +9,7 @@ Includes the following components:
   - [Poetry](https://python-poetry.org/)
   - [pipx](https://pipx.pypa.io/)
   - [uv](https://docs.astral.sh/uv)
-- [Go 1.24](https://go.dev/dl)
+- [Go 1.25](https://go.dev/dl)
 - [Node.js 22](https://nodejs.org/en/download)
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide)
 - [AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide) and
@@ -30,14 +30,16 @@ Includes the following components:
   - [kubectl-argo-rollouts](https://argo-rollouts.readthedocs.io/)
   - [Kubeconform](https://github.com/yannh/kubeconform)
   - [kube-score](https://github.com/zegl/kube-score)
-- [kind](https://kind.sigs.k8s.io/) and [vCluster](https://www.vcluster.com/)
+- [Kustomize](https://kubectl.docs.kubernetes.io/references/kustomize)
 - [Helm](https://helm.sh/)
   - [helm-docs](https://github.com/norwoodj/helm-docs)
   - [helm-diff](https://github.com/databus23/helm-diff)
   - [helm-git](https://github.com/aslafy-z/helm-git)
   - [helm-ssm](https://github.com/codacy/helm-ssm)
   - [Helmfile](https://github.com/helmfile/helmfile)
+  - [vals](https://github.com/helmfile/vals)
 - [Argo CD](https://argo-cd.readthedocs.io/)
+- [kind](https://kind.sigs.k8s.io/) and [vCluster](https://www.vcluster.com/)
 
 As well as the following utilities:
 - [jq](https://stedolan.github.io/jq),

@@ -4,7 +4,7 @@
 # shellcheck disable=SC2086 # Double quote prevent globbing
 # shellcheck disable=SC2046 # Quote to prevent word splitting
 
-echo "::group::Install Go 1.24"
+echo "::group::Install Go 1.25"
 trap 'echo "::endgroup::"' EXIT
 set -euxo pipefail
 

@@ -52,19 +52,63 @@ if [ $ARCH == arm64 ]; then
 fi
 kubectl score version
 
-# install kind: https://kind.sigs.k8s.io/docs/user/quick-start#installation
-cd /usr/local/bin
-REL="https://github.com/kubernetes-sigs/kind/releases/latest"
-curl -fsSLo kind "$REL/download/kind-linux-$ARCH"
-chmod +x kind
-kind --version
+# install Kustomize: https://kubectl.docs.kubernetes.io/installation/kustomize/binaries
+REL="https://github.com/kubernetes-sigs/kustomize/releases/latest"
+VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/kustomize\/(.+)\r$/\1/p')
+curl -fsSL "$REL/download/kustomize_${VER}_linux_${ARCH}.tar.gz" | \
+  tar -xz -C /usr/local/bin --no-same-owner kustomize
 
-# install vCluster: https://www.vcluster.com/install
-cd /usr/local/bin
-REL="https://github.com/loft-sh/vcluster/releases/latest"
-curl -fsSLo vcluster "$REL/download/vcluster-linux-$ARCH"
-chmod +x vcluster
-vcluster version
+# create our own wrapper script that sanitizes
+# YAML files in and under the `kustomize build`
+# directory (this is mainly to fix Kustomize's
+# strict YAML parsing that chokes on duplicate
+# keys, like labels, that Helm charts generate)
+SCRIPT="/usr/local/bin/kustomize.sh"
+cat <<'EOF' > $SCRIPT
+#!/usr/bin/env bash
+set -eo pipefail
+
+sanitize() (
+  while read file; do
+    # this yq command does the following:
+    # dedup keys with last-occurrence-wins
+    # keep order of keys' first occurrence
+    # preserve all docs with --- delimiter
+    # preserve comments & trim whitespace
+
+    # https://mikefarah.gitbook.io/yq/usage/tips-and-tricks#logic-without-if-elif-else
+    # https://mikefarah.gitbook.io/yq/operators/multiply-merge#objects-and-arrays-merging
+
+    yq -i --header-preprocess=false '{} as $temp
+      | with(select(kind == "map"); $temp.init = {})
+      | with(select(kind == "seq"); $temp.init = [])
+      | . as $item ireduce ($temp.init; . *d $item)
+      | "---\n\(to_yaml | trim)"' "$file"
+  done < <(
+    find "$1" \( -name '*.yaml' -o -name '*.yml' \)
+  )
+)
+for arg in "$@"; do
+  case "$arg" in
+    build) build=1
+           ;;
+       -h|--help)
+            help=1
+           ;;
+       -*) ;;
+        *) [ ! "$build_dir" ] && [ "$build" ] \
+           && [ -d "$arg" ] && build_dir="$arg"
+           ;;
+  esac
+done
+
+# sanitize only if actually building
+[ "$build" ] && [ ! "$help" ] && \
+  sanitize "${build_dir:-.}"
+
+exec kustomize "$@"
+EOF
+chmod +x $SCRIPT
 
 # install Helm: https://helm.sh/docs/intro/install/
 REL="https://github.com/helm/helm/releases/latest"
@@ -108,6 +152,13 @@ curl -fsSL "$REL/download/helmfile_${VER}_linux_${ARCH}.tar.gz" | \
   tar -xz -C /usr/local/bin --no-same-owner helmfile
 helmfile --version
 
+# install vals: https://github.com/helmfile/vals#installation
+REL="https://github.com/helmfile/vals/releases/latest"
+VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
+curl -fsSL "$REL/download/vals_${VER}_linux_${ARCH}.tar.gz" | \
+  tar -xz -C /usr/local/bin --no-same-owner vals
+vals --version
+
 # install Argo CD: https://argo-cd.readthedocs.io/en/stable/cli_installation/
 cd /usr/local/bin
 REL="https://github.com/argoproj/argo-cd/releases/latest"
@@ -121,3 +172,17 @@ REL="https://github.com/argoproj/argo-rollouts/releases/latest"
 curl -fsSLo kubectl-argo-rollouts "$REL/download/kubectl-argo-rollouts-linux-$ARCH"
 chmod +x kubectl-argo-rollouts
 kubectl argo rollouts version --short
+
+# install kind: https://kind.sigs.k8s.io/docs/user/quick-start#installation
+cd /usr/local/bin
+REL="https://github.com/kubernetes-sigs/kind/releases/latest"
+curl -fsSLo kind "$REL/download/kind-linux-$ARCH"
+chmod +x kind
+kind --version
+
+# install vCluster: https://www.vcluster.com/install
+cd /usr/local/bin
+REL="https://github.com/loft-sh/vcluster/releases/latest"
+curl -fsSLo vcluster "$REL/download/vcluster-linux-$ARCH"
+chmod +x vcluster
+vcluster version
