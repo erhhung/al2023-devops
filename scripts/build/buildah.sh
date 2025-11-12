@@ -18,7 +18,7 @@ command -v btrfs &> /dev/null || (
   # install the python-devel package
   # matching current python3 version
   python_devel=$(python3 -V | sed -En 's/^[^1-9]+([1-9]+\.[0-9]+).*$/python\1-devel/p')
-  pip3 install setuptools
+  pip3 install --root-user-action=ignore setuptools
 
   dnf install -y "$python_devel" e2fsprogs-devel \
     libblkid-devel libuuid-devel libudev-devel lzo-devel
@@ -36,8 +36,20 @@ command -v btrfs &> /dev/null || (
 git clone https://github.com/containers/buildah.git
 cd buildah
 
+# v1.42.1+ currently results in the following build error:
+#  Error: mounting an overlay over build context directory:
+# creating overlay scaffolding for build context directory:
+# mount overlay: /var/tmp/buildah-context-1267132733/overlay/2490281299/merge,
+# data: lowerdir=/build,
+#       upperdir=/var/tmp/buildah-context-1267132733/overlay/2490281299/upper,
+#        workdir=/var/tmp/buildah-context-1267132733/overlay/2490281299/work,
+#       userxattr: invalid argument
+# https://github.com/containers/buildah/issues/5988
+git -c advice.detachedHead=false checkout v1.42.0
+
 # set app version to non-dev release
-sed -Ei 's/^(.+Version = "[^-]+).+"$/\1"/' define/types.go
+sed -Ei 's/^(.+Version = "[0-9.]+).*"$/\1"/' define/types.go
+go mod vendor
 make -sj"$(nproc)"
 # installs into (empty) dirs under
 # /usr/local: /bin, /share/man/man1

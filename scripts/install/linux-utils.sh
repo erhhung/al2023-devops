@@ -18,9 +18,9 @@ dnf check-update
 # install common utilities (procps provides "free" command)
 # perl-IPC-Run and perl-Time-HiRes are required by moreutils
 dnf install -y git wget tar xz bzip2 gzip unzip man bc bash-completion \
-  which findutils iproute iputils dnsutils net-tools nmap gettext procps \
-  pwgen sshpass openssl vim tmux glibc-locale-source glibc-langpack-en \
-  perl-IPC-Run perl-Time-HiRes
+  which findutils kmod iproute iputils dnsutils net-tools nmap gettext \
+  procps pwgen sshpass openssl vim tmux perl-IPC-Run perl-Time-HiRes \
+  glibc-locale-source glibc-langpack-en
 dnf clean all
 rm -rf /var/log/* /var/cache/dnf
 alternatives --install /usr/local/bin/vi vi /usr/bin/vim 1
@@ -37,18 +37,12 @@ export $(xargs < /etc/locale.conf)
 localedef -i $LANGUAGE -f UTF-8 $LANGUAGE.UTF-8
 find /usr/{lib,share}/locale/* -maxdepth 0 -type d -not -iname "$LANGUAGE*" -exec rm -rf {} \;
 
-# install wait4x: https://github.com/wait4x/wait4x
-REL="https://github.com/wait4x/wait4x/releases/latest"
-URL="$REL/download/wait4x-linux-$ARCH.tar.gz"
-curl -fsSL $URL | tar -xz -C /usr/local/bin --no-same-owner wait4x
-wait4x version
-
 # install just: https://github.com/casey/just#pre-built-binaries
 cd /tmp
-REL="https://github.com/casey/just/releases/latest"
-VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
-URL="$REL/download/just-$VER-$(uname -m)-unknown-linux-musl.tar.gz"
-curl -fsSL $URL | tar -xz --no-same-owner just* completions/*.bash
+REL="https://github.com/casey/just/releases"
+VER=$(curl -Is "$REL/latest" | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
+curl -fsSL "$REL/download/$VER/just-$VER-$(uname -m)-unknown-linux-musl.tar.gz" | \
+  tar -xz --no-same-owner just* completions/*.bash
 mv just       /usr/local/bin
 mv ./*/*.bash /usr/local/etc/bash_completion.d
 mv just.1     /usr/local/share/man/man1
@@ -64,10 +58,12 @@ install_bin() {
 }
 
 # install sops: https://github.com/getsops/sops
-REL="https://github.com/getsops/sops/releases/latest"
-VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
-install_bin sops "$REL/download/sops-$VER.linux.$ARCH"
-
+REL="https://github.com/getsops/sops/releases"
+VER=$(curl -Is "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
+(
+  export SOPS_DISABLE_VERSION_CHECK=1
+  install_bin sops "$REL/download/v${VER}/sops-v${VER}.linux.$ARCH"
+)
 # install jq: https://stedolan.github.io/jq
 install_bin jq "https://github.com/stedolan/jq/releases/latest/download/jq-linux-$ARCH"
 # install yq: https://github.com/mikefarah/yq

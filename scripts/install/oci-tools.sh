@@ -11,18 +11,19 @@ set -euxo pipefail
 ARCH=$(uname -m | sed -e 's/aarch64/arm64/' -e 's/x86_64/amd64/')
 
 # install Dive: https://github.com/wagoodman/dive#installation
-REL="https://github.com/wagoodman/dive/releases/latest"
-VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
-curl -fsSL "$REL/download/dive_${VER}_linux_${ARCH}.tar.gz" | \
+REL="https://github.com/wagoodman/dive/releases"
+VER=$(curl -Is "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
+curl -fsSL "$REL/download/v${VER}/dive_${VER}_linux_${ARCH}.tar.gz" | \
   tar -xz -C /usr/local/bin --no-same-owner dive
 dive --version
 (
   # install MinToolkit: https://github.com/mintoolkit/mint#installation
-  REL="https://github.com/mintoolkit/mint/releases/latest"
+  REL="https://github.com/mintoolkit/mint/releases"
+  VER=$(curl -Is "$REL/latest" | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
   # name must be *linux.* or *linux_arm64.*
-  ARCH=${ARCH/%amd*/} ARCH=${ARCH/arm/_arm}
-  curl -fsSL "$REL/download/dist_linux${ARCH}.tar.gz" | \
-    tar -xz -C /usr/local/bin --no-same-owner --strip 1 "dist_linux${ARCH}"/mint*
+  arch=${ARCH/%amd*/} arch=${arch/arm/_arm}
+  curl -fsSL "$REL/download/$VER/dist_linux${arch}.tar.gz" | \
+    tar -xz -C /usr/local/bin --no-same-owner --strip 1 "dist_linux${arch}"/mint*
   mint --version
 )
 
@@ -35,9 +36,9 @@ rm -rf /var/log/* /var/cache/dnf
 runc --version
 
 # install crun: https://github.com/containers/crun
-REL="https://github.com/containers/crun/releases/latest"
-VER=$(curl -Is $REL | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
-curl -fsSLo crun "$REL/download/crun-$VER-linux-$ARCH"
+REL="https://github.com/containers/crun/releases"
+VER=$(curl -Is "$REL/latest" | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
+curl -fsSLo crun "$REL/download/$VER/crun-$VER-linux-$ARCH"
 chmod +x crun && mv crun /usr/local/bin
 crun --version
 
