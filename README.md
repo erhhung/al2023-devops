@@ -32,9 +32,10 @@ Includes the following components:
   - [kube-score](https://github.com/zegl/kube-score)
 - [Kustomize](https://kubectl.docs.kubernetes.io/references/kustomize)
 - [Helm](https://helm.sh/)
-  - [helm-docs](https://github.com/norwoodj/helm-docs)
   - [helm-diff](https://github.com/databus23/helm-diff)
+  - [helm-docs](https://github.com/norwoodj/helm-docs)
   - [helm-git](https://github.com/aslafy-z/helm-git)
+  - [helm-secrets](https://github.com/jkroepke/helm-secrets)
   - [helm-ssm](https://github.com/codacy/helm-ssm)
   - [Helmfile](https://github.com/helmfile/helmfile)
   - [vals](https://github.com/helmfile/vals)
@@ -45,6 +46,8 @@ As well as the following utilities:
 - [jq](https://stedolan.github.io/jq),
   [jo](https://github.com/jpmens/jo), and
   [yq](https://mikefarah.gitbook.io/yq)
+- [sops](https://github.com/getsops/sops) and
+  [age](https://github.com/FiloSottile/age)
 - [gomplate](https://docs.gomplate.ca/)
 - [jsonnet](https://jsonnet.org/)
 - [GNU Parallel](https://savannah.gnu.org/projects/parallel)

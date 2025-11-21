@@ -56,30 +56,24 @@ COPY --from=builder /root/.docker/          /root/.docker/
 
 # configure locale; non-"en_US" locales will be purged from
 # /usr/{lib,share}/locale by scripts/install/linux-utils.sh
-COPY config/locale.conf /etc/
+COPY --link config/locale.conf /etc/
 
 # copy various dotfiles
-COPY config/.* /root/
+COPY --link config/.* /root/
 
 # =======================================================
 FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS final
 # =======================================================
 
 ENV TERM="xterm-256color"
-ENV PYGMENT_STYLE="one-dark"
 ENV PATH="/usr/local/poetry/bin:$PATH:/root/.krew/bin"
-ENV JSII_SILENCE_WARNING_DEPRECATED_NODE_VERSION="1"
-ENV CDK8S_CHECK_UPGRADE="false"
-ENV TF_CLI_ARGS_init="-compact-warnings"
-ENV TF_CLI_ARGS_plan="-compact-warnings"
-ENV TF_CLI_ARGS_apply="-compact-warnings"
-# https://man.archlinux.org/man/extra/buildah/buildah-bud
-ENV BUILDAH_ISOLATION="chroot"
 
 # Copy all consolidated files
 COPY --from=consolidator / /
 
 WORKDIR /root
+
+ENV PYGMENT_STYLE="one-dark"
 
 # install Linux utilities
 RUN --mount=type=bind,source=scripts/install/linux-utils.sh,target=/tmp/install.sh /tmp/install.sh
@@ -90,17 +84,32 @@ RUN --mount=type=bind,source=scripts/install/python-tools.sh,target=/tmp/install
 # install Go 1.24
 RUN --mount=type=bind,source=scripts/install/go.sh,target=/tmp/install.sh /tmp/install.sh
 
+ENV JSII_SILENCE_WARNING_DEPRECATED_NODE_VERSION="1"
+
 # install Node.js 22
 RUN --mount=type=bind,source=scripts/install/node.sh,target=/tmp/install.sh /tmp/install.sh
+
+ENV CDK8S_CHECK_UPGRADE="false"
 
 # install AWS tools
 RUN --mount=type=bind,source=scripts/install/aws-tools.sh,target=/tmp/install.sh /tmp/install.sh
 
+ENV TF_CLI_ARGS_init="-compact-warnings"
+ENV TF_CLI_ARGS_plan="-compact-warnings"
+ENV TF_CLI_ARGS_apply="-compact-warnings"
+
 # install infra tools
 RUN --mount=type=bind,source=scripts/install/infra-tools.sh,target=/tmp/install.sh /tmp/install.sh
 
+# https://man.archlinux.org/man/extra/buildah/buildah-bud
+ENV BUILDAH_ISOLATION="chroot"
+
 # install OCI image tools
 RUN --mount=type=bind,source=scripts/install/oci-tools.sh,target=/tmp/install.sh /tmp/install.sh
+
+# HELM_BIN is required by helm-git
+ENV HELM_BIN="/usr/local/bin/helm"
+ENV HELM_PLUGINS="/root/.local/share/helm/plugins"
 
 # install Kubernetes tools
 RUN --mount=type=bind,source=scripts/install/k8s-tools.sh,target=/tmp/install.sh /tmp/install.sh

@@ -55,6 +55,7 @@ grelease() {
   curl -Is "$1/releases/latest" | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p'
 }
 
+setver age $(v=`age --version`; echo ${v#v})
 setver ansible $(v=(`ansible --version | head -1`); echo ${v[-1]%\]})
 setver argocd $(v=(`argocd version --client --short`); v=${v[-1]#v}; echo ${v%+*})
 setver aws $(v=(`aws --version`); echo ${v[0]#*/})
@@ -81,6 +82,7 @@ setver helm $(v=`helm version --short`; v=${v#v}; echo ${v%+*})
 setver helm-diff $(helm diff version)
 setver helm-docs $(v=(`helm-docs --version`); echo ${v[-1]})
 setver helm-git $(v=(`helm plugin list | grep git`); echo ${v[1]})
+setver helm-secrets $(helm secrets --version | head -1)
 setver helm-ssm $(v=(`helm plugin list | grep ssm`); echo ${v[1]})
 setver helmfile $(helmfile version -o short 2> /dev/null)
 setver jo $(jo -V | jq -r .version)

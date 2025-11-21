@@ -49,6 +49,13 @@ mv just.1     /usr/local/share/man/man1
 rm -rf completions
 just --version
 
+# install age: https://github.com/FiloSottile/age#installation
+REL="https://github.com/FiloSottile/age/releases"
+VER=$(curl -Is "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
+curl -fsSL "$REL/download/v${VER}/age-v${VER}-linux-$ARCH.tar.gz" | \
+  tar -xz -C /usr/local/bin --no-same-owner --strip 1 --wildcards 'age/age*'
+age --version
+
 install_bin() {
   cd /usr/local/bin
   local bin=$1 src=$2

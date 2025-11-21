@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2148 # Tips depend on target shell
+# shellcheck disable=SC2086 # Double quote prevent globbing
+
 # build script for local testing; GitHub Actions is
 # used for CI build based on year.month (YY.MM) tag
 
@@ -18,16 +21,17 @@ get_platform() {
 
 repo=$(get_label name)
 plat=$(get_platform "$@")
- src=$repo:latest
+ tag=${repo:-al2023-devops}:latest
  log=${0/%.sh/.log}
 
 # build for local platform only by default
 set -- $plat "$@"
 
-aws ecr-public get-login-password --region us-east-1 | \
+aws ecr-public get-login-password --profile github --region us-east-1 | \
   docker login --username AWS --password-stdin public.ecr.aws
 
 # docker buildx create --name multi-builder --bootstrap --use
 # https://docs.docker.com/build/building/multi-platform/#building-multi-platform-images
-docker buildx build "$@" --tag $src --load --progress plain . 2>&1 | \
-  sed -Eu 's/^(#[0-9]+ [0-9.]+ )(::(end)?group::.*)$/\2/' | tee -a $log
+docker buildx build "$@" --builder multi-builder \
+  --tag "$tag" --load --progress plain . 2>&1  | \
+  sed -Eu 's/^(#[0-9]+ [0-9.]+ )(::(end)?group::.*)$/\2/' | tee -a "$log"

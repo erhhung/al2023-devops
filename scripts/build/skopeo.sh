@@ -17,7 +17,7 @@ command -v btrfs &> /dev/null || (
   # install the python-devel package
   # matching current python3 version
   python_devel=$(python3 -V | sed -En 's/^[^1-9]+([1-9]+\.[0-9]+).*$/python\1-devel/p')
-  pip3 install setuptools
+  pip3 install --root-user-action=ignore setuptools
 
   dnf install -y "$python_devel" e2fsprogs-devel \
     libblkid-devel libuuid-devel libudev-devel lzo-devel

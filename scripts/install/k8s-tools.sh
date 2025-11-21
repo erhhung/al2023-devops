@@ -2,12 +2,13 @@
 
 # shellcheck disable=SC2148 # Tips depend on target shell
 # shellcheck disable=SC2086 # Double quote prevent globbing
+# shellcheck disable=SC2206 # Quote to avoid word splitting
 # shellcheck disable=SC2030 # Modification of var is local
 # shellcheck disable=SC2031 # var was modified in subshell
 
 echo "::group::Install Kubernetes tools"
 trap 'echo "::endgroup::"' EXIT
-set -euxo pipefail
+set -exo pipefail
 
 # use the appropriate binaries for this multi-arch Docker image
 ARCH=$(uname -m | sed -e 's/aarch64/arm64/' -e 's/x86_64/amd64/')
@@ -75,7 +76,7 @@ cat <<'EOF' > $SCRIPT
 set -eo pipefail
 
 sanitize() (
-  while read file; do
+  while read -r file; do
     # this yq command does the following:
     # dedup keys with last-occurrence-wins
     # keep order of keys' first occurrence
@@ -116,10 +117,10 @@ exec kustomize "$@"
 EOF
 chmod +x $SCRIPT
 
-# install Helm: https://helm.sh/docs/intro/install/
+# install Helm: https://helm.sh/docs/intro/install
 REL="https://github.com/helm/helm/releases"
-VER=$(curl -Is "$REL/latest" | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
-curl -fsSL "https://get.helm.sh/helm-$VER-linux-$ARCH.tar.gz" | \
+VER=$(curl -Is "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
+curl -fsSL "https://get.helm.sh/helm-v${VER}-linux-$ARCH.tar.gz" | \
   tar -xz -C /usr/local/bin --no-same-owner --strip 1 "linux-$ARCH"/helm
 helm version
 
@@ -132,9 +133,32 @@ curl -fsSL "$REL/download/v${VER}/helm-docs_${VER}_Linux_${arch}.tar.gz" | \
 helm-docs --version
 
 # install Helm plugins
-helm plugin install https://github.com/databus23/helm-diff
+install_plugin() {
+  local repo=$1 ver=$2 tgz=$3
+  [ "$ver" ] || ver=$(
+    curl -Is "$repo/releases/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p'
+  )
+  local args=(--verify=false)
+  if [ "$tgz" ]; then
+    args+=("$repo/releases/download/v${ver}/${tgz//=VER=/$ver}")
+  else
+    args+=($repo --version $ver)
+  fi
+  helm plugin install "${args[@]}"
+}
+
+install_plugin https://github.com/aslafy-z/helm-git
+# apply patch to fix invalid `helm version` command
+sed -Ei 's/version -c/version/' $HELM_PLUGINS/helm-git/helm-git-plugin.sh
+
+install_plugin https://github.com/databus23/helm-diff
 helm diff version
-helm plugin install https://github.com/aslafy-z/helm-git
+
+# https://github.com/jkroepke/helm-secrets/wiki/Installation
+install_plugin https://github.com/jkroepke/helm-secrets "" secrets-=VER=.tgz
+install_plugin https://github.com/jkroepke/helm-secrets "" secrets-getter-=VER=.tgz
+install_plugin https://github.com/jkroepke/helm-secrets "" secrets-post-renderer-=VER=.tgz
+helm secrets --version | head -1
 (
   cd /root/.local/share/helm/plugins
   REPO="https://github.com/codacy/helm-ssm"
