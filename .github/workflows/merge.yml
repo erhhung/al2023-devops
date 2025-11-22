@@ -18,16 +18,16 @@ jobs:
       # https://github.com/actions/download-artifact
       - name: Download Digests
         id: download
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: /tmp/digests
           pattern: digests-*
           merge-multiple: true
 
-      # https://github.com/crazy-max/ghaction-setup-docker
+      # https://github.com/docker/setup-docker-action
       - name: Set up Docker Daemon
         id: docker
-        uses: crazy-max/ghaction-setup-docker@v3
+        uses: docker/setup-docker-action@v4
 
       # https://github.com/docker/setup-buildx-action
       - name: Set up Docker BuildX

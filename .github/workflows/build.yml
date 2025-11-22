@@ -27,7 +27,7 @@ jobs:
       # https://github.com/actions/checkout
       - name: Check out Source Code
         id: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set Environment Variables
         id: env
@@ -37,10 +37,10 @@ jobs:
           PLATFORM_PAIR=${platform//\//-}
           EOF
 
-      # https://github.com/crazy-max/ghaction-setup-docker
+      # https://github.com/docker/setup-docker-action
       - name: Set up Docker Daemon
         id: docker
-        uses: crazy-max/ghaction-setup-docker@v3
+        uses: docker/setup-docker-action@v4
 
       # https://github.com/docker/setup-qemu-action
       - name: Set up QEMU Emulator
