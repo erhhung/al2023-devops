@@ -51,7 +51,7 @@ jobs:
           # runner could lose connection to GitHub Actions
           # if using instance type smaller than t4g.xlarge
           instance-type: ${{ vars.RUNNER_ARM64_INSTANCE_TYPE }}
-          spot-instance: 'true'
+          spot-instance: '${{ vars.RUNNER_USE_SPOT_INSTANCE }}'
           root-volume-size: '${{ vars.RUNNER_ROOT_VOLUME_SIZE }}'
           subnet-id: ${{ vars.RUNNER_SUBNET_ID }}
           security-group-id: ${{ vars.RUNNER_SECURITY_GROUP_ID }}
