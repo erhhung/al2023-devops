@@ -21,7 +21,9 @@ terraform --version
 # install Ansible and dependencies for Kubernetes:
 # https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#pip-install
 pip3 install --no-cache-dir --root-user-action=ignore \
-  ansible jsonpatch kubernetes kubernetes-validate
+  ansible ansible-compat ansible-runner ansible-lint   \
+  toml bcrypt==4.0.1 passlib netaddr jsonpatch jmespath \
+  kubernetes kubernetes-validate
 rm -rf /root/.cache
 export $(xargs < /etc/locale.conf)
 ansible --version
