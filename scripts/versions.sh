@@ -5,8 +5,8 @@
 
 # shellcheck disable=SC1091 # Not following: not input file
 # shellcheck disable=SC2086 # Double quote prevent globbing
-# shellcheck disable=SC2206 # Quote to prevent word splitting
-# shellcheck disable=SC2046 # Quote to prevent word splitting
+# shellcheck disable=SC2206 # Quote to avoid word splitting
+# shellcheck disable=SC2046 # Quote to avoid word splitting
 # shellcheck disable=SC2006 # Prefer $(...) over legacy `...`
 # shellcheck disable=SC2207 # Prefer mapfile to split output
 # shellcheck disable=SC2155 # Declare and assign separately

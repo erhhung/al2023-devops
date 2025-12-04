@@ -3,7 +3,10 @@
 # shellcheck disable=SC1091 # Not following: not input file
 # shellcheck disable=SC2086 # Double quote prevent globbing
 # shellcheck disable=SC2206 # Quote to avoid word splitting
+# shellcheck disable=SC2046 # Quote to avoid word splitting
 # shellcheck disable=SC2207 # Prefer mapfile to split output
+
+export $(xargs < /etc/locale.conf)
 
 alias pwd='printf "%q\n" "$(builtin pwd)"'
 alias cdd='cd - > /dev/null'
@@ -20,7 +23,6 @@ alias kg='kubectl-grep'
 alias ar='kubectl-argo-rollouts'
 alias ap='ansible-playbook'
 alias tf='terraform'
-alias  a='argocd'
 alias  h='helm'
 
 alias ip='ip -c=auto'
@@ -55,7 +57,6 @@ complete -C /usr/local/bin/aws_completer    aws
 complete -o default -F __start_kubectl k
 complete -o default -F __start_kubectl-grep          kg
 complete -o default -F __start_kubectl-argo-rollouts ar
-complete -o default -F __start_argocd  a
 complete -o default -F __start_helm    h
 
 # check TCP port connectivity

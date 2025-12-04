@@ -2,7 +2,7 @@
 
 # shellcheck disable=SC2148 # Tips depend on target shell
 # shellcheck disable=SC2086 # Double quote prevent globbing
-# shellcheck disable=SC2046 # Quote to prevent word splitting
+# shellcheck disable=SC2046 # Quote to avoid word splitting
 
 echo "::group::Install Linux utilities"
 trap 'echo "::endgroup::"' EXIT

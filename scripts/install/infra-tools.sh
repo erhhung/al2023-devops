@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # shellcheck disable=SC2148 # Tips depend on target shell
-# shellcheck disable=SC2046 # Quote to prevent word splitting
+# shellcheck disable=SC2046 # Quote to avoid word splitting
 
 echo "::group::Install infra tools"
 trap 'echo "::endgroup::"' EXIT
@@ -25,6 +25,8 @@ pip3 install --no-cache-dir --root-user-action=ignore \
   toml bcrypt==4.0.1 passlib netaddr jsonpatch jmespath \
   kubernetes kubernetes-validate
 rm -rf /root/.cache
+# Ansible requires the locale encoding
+# to be UTF-8 (e.g. LANG=en_US.UTF-8)
 export $(xargs < /etc/locale.conf)
 ansible --version
 
