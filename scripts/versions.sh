@@ -59,6 +59,7 @@ setver age $(v=`age --version`; echo ${v#v})
 setver ansible $(v=(`ansible --version | head -1`); echo ${v[-1]%\]})
 setver argocd $(v=(`argocd version --client --short`); v=${v[-1]#v}; echo ${v%+*})
 setver aws $(v=(`aws --version`); echo ${v[0]#*/})
+setver awx $(awx --version)
 setver bash ${BASH_VERSION/%\(*/}
 setver bc $(v=(`bc --version | head -1`); echo ${v[-1]})
 setver buildah $(v=(`buildah --version`); echo ${v[2]})

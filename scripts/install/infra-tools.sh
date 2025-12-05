@@ -2,6 +2,7 @@
 
 # shellcheck disable=SC2148 # Tips depend on target shell
 # shellcheck disable=SC2046 # Quote to avoid word splitting
+# shellcheck disable=SC2086 # Double quote prevent globbing
 
 echo "::group::Install infra tools"
 trap 'echo "::endgroup::"' EXIT
@@ -29,6 +30,22 @@ rm -rf /root/.cache
 # to be UTF-8 (e.g. LANG=en_US.UTF-8)
 export $(xargs < /etc/locale.conf)
 ansible --version
+
+# install Ansible AWX CLI using the stock
+# Python version (must be <= Python 3.12)
+pipx install awxkit --python /usr/bin/python3
+# patch installed scripts to suppress
+# pkg_resources is deprecated warning
+for cli in awx akit; do
+  bin=$(which $cli)
+  grep -q filterwarnings $bin || \
+    sed -i '/import sys/a\
+\
+import warnings # ignore UserWarning: pkg_resources is deprecated...\
+warnings.filterwarnings("ignore", category=UserWarning, module="awxkit")\
+' $bin
+done
+awx --version
 
 # install wait4x: https://github.com/wait4x/wait4x
 REL="https://github.com/wait4x/wait4x/releases"

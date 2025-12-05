@@ -66,7 +66,7 @@ FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS final
 # =======================================================
 
 ENV TERM="xterm-256color"
-ENV PATH="/usr/local/poetry/bin:$PATH:/root/.krew/bin"
+ENV PATH="/usr/local/poetry/bin:$PATH:/root/.local/bin:/root/.krew/bin"
 
 # Copy all consolidated files
 COPY --from=consolidator / /
