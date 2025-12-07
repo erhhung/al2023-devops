@@ -35,7 +35,8 @@ $TMUX_PLUGIN_MANAGER_PATH/bin/install_plugins
 # purge unused locales
 export $(xargs < /etc/locale.conf)
 localedef -i $LANGUAGE -f UTF-8 $LANGUAGE.UTF-8
-find /usr/{lib,share}/locale/* -maxdepth 0 -type d -not -iname "$LANGUAGE*" -exec rm -rf {} \;
+find /usr/{lib,share}/locale/* -maxdepth 0 -type d \
+  -not -iname "$LANGUAGE*" -exec rm -rf {} \;
 
 # install just: https://github.com/casey/just#pre-built-binaries
 cd /tmp

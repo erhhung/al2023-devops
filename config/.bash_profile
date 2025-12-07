@@ -6,8 +6,6 @@
 # shellcheck disable=SC2046 # Quote to avoid word splitting
 # shellcheck disable=SC2207 # Prefer mapfile to split output
 
-export $(xargs < /etc/locale.conf)
-
 alias pwd='printf "%q\n" "$(builtin pwd)"'
 alias cdd='cd - > /dev/null'
 alias ls='ls --color=auto'

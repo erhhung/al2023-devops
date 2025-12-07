@@ -26,9 +26,6 @@ pip3 install --no-cache-dir --root-user-action=ignore \
   toml bcrypt==4.0.1 passlib netaddr jsonpatch jmespath \
   kubernetes kubernetes-validate
 rm -rf /root/.cache
-# Ansible requires the locale encoding
-# to be UTF-8 (e.g. LANG=en_US.UTF-8)
-export $(xargs < /etc/locale.conf)
 ansible --version
 
 # install Ansible AWX CLI using the stock

@@ -24,9 +24,6 @@ on_exit() {
 trap on_exit EXIT
 set -euxo pipefail
 
-# Ansible requires locale to be set
-export $(xargs < /etc/locale.conf)
-
 OUT="/root/.versions.json"
 # create empty object
 jo < /dev/null > $OUT

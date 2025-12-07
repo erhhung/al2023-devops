@@ -5,6 +5,8 @@ FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS builder
 # NOTE: AL2023 GA version includes components from Fedora 34, 35, and 36:
 # https://docs.aws.amazon.com/linux/al2023/ug/relationship-to-fedora.html
 
+SHELL ["/bin/bash", "-c"]
+
 # install common build tools
 RUN --mount=type=bind,source=scripts/build/common.sh,target=/tmp/build.sh /tmp/build.sh
 
@@ -68,6 +70,13 @@ FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS final
 ENV TERM="xterm-256color"
 ENV PATH="/usr/local/poetry/bin:$PATH:/root/.local/bin:/root/.krew/bin"
 
+ENV LANG="en_US.UTF-8"
+ENV LANGUAGE="en_US:en"
+ENV LC_ALL="en_US.UTF-8"
+ENV LC_COLLATE="C"
+
+SHELL ["/bin/bash", "-c"]
+
 # Copy all consolidated files
 COPY --from=consolidator / /
 
@@ -81,7 +90,7 @@ RUN --mount=type=bind,source=scripts/install/linux-utils.sh,target=/tmp/install.
 # install Python tools
 RUN --mount=type=bind,source=scripts/install/python-tools.sh,target=/tmp/install.sh /tmp/install.sh
 
-# install Go 1.24
+# install Go 1.25
 RUN --mount=type=bind,source=scripts/install/go.sh,target=/tmp/install.sh /tmp/install.sh
 
 ENV JSII_SILENCE_WARNING_DEPRECATED_NODE_VERSION="1"
