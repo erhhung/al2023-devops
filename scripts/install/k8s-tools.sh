@@ -21,6 +21,10 @@ curl -fsSLO "$REL/$VER/bin/linux/$ARCH"/kubectl
 chmod +x kubectl
 kubectl version --client
 
+# create an empty kubeconfig file
+kubectl config set clusters.local.server https://127.0.0.1:6443
+kubectl config delete-cluster local
+
 # install Kubeconform: https://github.com/yannh/kubeconform#installation
 REL="https://github.com/yannh/kubeconform/releases"
 VER=$(curl -Is "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
