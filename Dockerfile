@@ -60,8 +60,9 @@ COPY --from=builder /root/.docker/          /root/.docker/
 # /usr/{lib,share}/locale by scripts/install/linux-utils.sh
 COPY --link config/locale.conf /etc/
 
-# copy various dotfiles
+# copy dotfiles and scripts
 COPY --link config/.* /root/
+COPY --link scripts/usrlocalbin/* /usr/local/bin/
 
 # =======================================================
 FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS final

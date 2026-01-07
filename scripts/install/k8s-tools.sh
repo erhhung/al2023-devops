@@ -69,58 +69,6 @@ curl -fsSL "$REL/download/kustomize/v${VER}/kustomize_v${VER}_linux_${ARCH}.tar.
   tar -xz -C /usr/local/bin --no-same-owner kustomize
 kustomize version
 
-# create our own wrapper script that sanitizes
-# YAML files in and under the `kustomize build`
-# directory (this is mainly to fix Kustomize's
-# strict YAML parsing that chokes on duplicate
-# keys, like labels, that Helm charts generate)
-SCRIPT="/usr/local/bin/kustomize.sh"
-cat <<'EOF' > $SCRIPT
-#!/usr/bin/env bash
-set -eo pipefail
-
-sanitize() (
-  while read -r file; do
-    # this yq command does the following:
-    # dedup keys with last-occurrence-wins
-    # keep order of keys' first occurrence
-    # preserve all docs with --- delimiter
-    # preserve comments & trim whitespace
-
-    # https://mikefarah.gitbook.io/yq/usage/tips-and-tricks#logic-without-if-elif-else
-    # https://mikefarah.gitbook.io/yq/operators/multiply-merge#objects-and-arrays-merging
-
-    yq -i --header-preprocess=false '{} as $temp
-      | with(select(kind == "map"); $temp.init = {})
-      | with(select(kind == "seq"); $temp.init = [])
-      | . as $item ireduce ($temp.init; . *d $item)
-      | "---\n\(to_yaml | trim)"' "$file"
-  done < <(
-    find "$1" \( -name '*.yaml' -o -name '*.yml' \)
-  )
-)
-for arg in "$@"; do
-  case "$arg" in
-    build) build=1
-           ;;
-       -h|--help)
-            help=1
-           ;;
-       -*) ;;
-        *) [ ! "$build_dir" ] && [ "$build" ] \
-           && [ -d "$arg" ] && build_dir="$arg"
-           ;;
-  esac
-done
-
-# sanitize only if actually building
-[ "$build" ] && [ ! "$help" ] && \
-  sanitize "${build_dir:-.}"
-
-exec kustomize "$@"
-EOF
-chmod +x $SCRIPT
-
 # install Helm: https://helm.sh/docs/intro/install
 REL="https://github.com/helm/helm/releases"
 VER=$(curl -Is "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')

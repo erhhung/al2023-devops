@@ -42,7 +42,9 @@ lsr = remote -v
 # list local branches
 lsb = !git branch --no-color | colrm 1 2
 # list remote branches
-lsrb = !git ls-remote --heads origin | colrm 1 59
+lsrb = "!f() { \
+  git ls-remote --heads ${1:-origin} | colrm 1 59; \
+}; f"
 # remove local branch
 rmb = branch -d
 # remove remote branch
@@ -96,15 +98,18 @@ coif = "!f() { \
   [ -n \"$b\" ] && git checkout $1; \
 }; f"
 cm = commit -m
+# commit & sign
+cms = commit -s -S -m
 # add & commit new & existing files
-cma = !git add -A && git cm
+cma  = !git add -A && git cm
+cmas = !git add -A && git cms
 touch = commit --allow-empty -m
-save = !git cm "SAVED"
-wipe = !git cm "WIPED" -q && git reset HEAD~1 --hard
+save = !git cm SAVED
+wipe = !git cm WIPED -q && git reset HEAD~1 --hard
 wip = commit -am "WIP"
 # amend previous commit [w/ message]
 amend = "!f() { \
-  a() { git commit --amend \"$@\"; }; \
+  a() { git commit --amend -s -S \"$@\"; }; \
   [ -n \"$1\" ] && a -m \"$1\"; \
   [ -z \"$1\" ] && a -C HEAD; \
 }; f"
@@ -125,3 +130,6 @@ insteadOf = git@github.com:
 
 [url "https://gitlab.com/"]
 insteadOf = git@gitlab.com:
+
+[credential]
+helper = /usr/local/bin/git-credential-store-ro
