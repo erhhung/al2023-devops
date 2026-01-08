@@ -43,8 +43,8 @@ chmod +x crun && mv crun /usr/local/bin
 crun --version
 
 # install containers-common package from Fedora
-rpm -i "https://dl.fedoraproject.org/pub/fedora/linux/releases/41/Everything/$(
-          uname -m)/os/Packages/c/containers-common-0.60.4-4.fc41.noarch.rpm" \
+rpm -i "https://dl.fedoraproject.org/pub/fedora/linux/releases/43/Everything/$(
+          uname -m)/os/Packages/c/containers-common-0.64.2-1.fc43.noarch.rpm" \
     --nosignature
 
 # use the vfs storage driver to avoid "overlay is not supported
