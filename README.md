@@ -52,6 +52,7 @@ As well as the following utilities:
 - [gomplate](https://docs.gomplate.ca/)
 - [jsonnet](https://jsonnet.org/)
 - [GNU Parallel](https://savannah.gnu.org/projects/parallel)
+- [q](https://github.com/natesales/q) _DNS client_
 - Common Linux utilities: `which`, `find`, `free`, `tar`, `gzip`, `xz`, `bzip`, `unzip`, `wget`, `git`,  
   `pwgen`, `md5sum`, `envsubst` (GNU gettext), `sponge`/`ts`/... ([moreutils](https://joeyh.name/code/moreutils/)), `bc`,
   `openssl`, `dig`,  

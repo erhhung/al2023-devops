@@ -26,6 +26,13 @@ rm -rf /var/log/* /var/cache/dnf
 alternatives --install /usr/local/bin/vi vi /usr/bin/vim 1
 alternatives --list
 
+# install q DNS client: https://github.com/natesales/q
+REL="https://github.com/natesales/q/releases"
+VER=$(curl -Is "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
+curl -fsSL "$REL/download/v${VER}/q_${VER}_linux_$ARCH.tar.gz" | \
+  tar -xz -C /usr/local/bin --no-same-owner q
+q --version
+
 # install tmux plugins: https://github.com/tmux-plugins/tpm#installation
 TMUX_PLUGIN_MANAGER_PATH="/root/.tmux/plugins/tpm"
 git clone -q https://github.com/tmux-plugins/tpm $TMUX_PLUGIN_MANAGER_PATH
