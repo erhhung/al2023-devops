@@ -20,7 +20,7 @@ dnf check-update
 dnf install -y git wget tar xz bzip2 gzip unzip man bc bash-completion \
   which findutils kmod iproute iputils dnsutils net-tools nmap gettext \
   procps pwgen sshpass openssl vim tmux perl-IPC-Run perl-Time-HiRes \
-  glibc-locale-source glibc-langpack-en
+  glibc-locale-source glibc-langpack-en python3-pip
 dnf clean all
 rm -rf /var/log/* /var/cache/dnf
 alternatives --install /usr/local/bin/vi vi /usr/bin/vim 1

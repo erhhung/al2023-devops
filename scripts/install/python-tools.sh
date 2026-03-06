@@ -16,9 +16,14 @@ poetry -V
 curl -fsSL https://astral.sh/uv/install.sh | XDG_BIN_HOME=/usr/local/bin sh
 uv -V
 
-# install pipx, Pygments, and ansitable
-pip3 install --no-cache-dir --root-user-action=ignore \
-  pipx pygments colored ansitable
-rm -rf /root/.cache
+# install pipx (for both system Python 3.9 in
+# /usr/bin and Python 3.13 in /usr/local/bin)
+/usr/bin/pip3 install --prefix /usr --no-cache-dir pipx 2> /dev/null
+/usr/local/bin/pip3 install --no-cache-dir --root-user-action=ignore pipx
 pipx --version
+
+# install Pygments and ansitable
+pip3 install --no-cache-dir --root-user-action=ignore colored \
+  pygments ansitable
+rm -rf /root/.cache
 pygmentize -V

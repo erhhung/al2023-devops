@@ -28,20 +28,11 @@ pip3 install --no-cache-dir --root-user-action=ignore \
 rm -rf /root/.cache
 ansible --version
 
-# install Ansible AWX CLI using the stock
-# Python version (must be <= Python 3.12)
-pipx install awxkit --python /usr/bin/python3
-# patch installed scripts to suppress
-# pkg_resources is deprecated warning
-for cli in awx akit; do
-  bin=$(which $cli)
-  grep -q filterwarnings $bin || \
-    sed -i '/import sys/a\
-\
-import warnings # ignore UserWarning: pkg_resources is deprecated...\
-warnings.filterwarnings("ignore", category=UserWarning, module="awxkit")\
-' $bin
-done
+# install Ansible AWX CLI using system
+# Python 3.9 (must be <= Python 3.12)
+/usr/bin/pipx install --python /usr/bin/python3 awxkit
+# pipx installs under ~/.local/bin, which
+# is already in $PATH via Dockerfile ENV
 awx --version
 
 # install wait4x: https://github.com/wait4x/wait4x
