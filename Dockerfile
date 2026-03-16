@@ -96,7 +96,7 @@ RUN --mount=type=bind,source=scripts/install/go.sh,target=/tmp/install.sh /tmp/i
 
 ENV JSII_SILENCE_WARNING_DEPRECATED_NODE_VERSION="1"
 
-# install Node.js 22
+# install Node.js 24
 RUN --mount=type=bind,source=scripts/install/node.sh,target=/tmp/install.sh /tmp/install.sh
 
 ENV CDK8S_CHECK_UPGRADE="false"

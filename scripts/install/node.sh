@@ -2,11 +2,11 @@
 
 # shellcheck disable=SC2148 # Tips depend on target shell
 
-echo "::group::Install Node.js 22"
+echo "::group::Install Node.js 24"
 trap 'echo "::endgroup::"' EXIT
 set -euxo pipefail
 
-curl -fsSL https://rpm.nodesource.com/setup_22.x | bash -
+curl -fsSL https://rpm.nodesource.com/setup_24.x | bash -
 dnf install -y nodejs
 dnf clean all
 rm -rf /var/log/* /var/cache/dnf

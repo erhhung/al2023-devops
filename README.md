@@ -10,7 +10,7 @@ Includes the following components:
   - [pipx](https://pipx.pypa.io/)
   - [uv](https://docs.astral.sh/uv)
 - [Go 1.25](https://go.dev/dl)
-- [Node.js 22](https://nodejs.org/en/download)
+- [Node.js 24](https://nodejs.org/en/download)
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide)
 - [AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide) and
   [CDK8s](https://cdk8s.io/)

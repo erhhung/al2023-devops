@@ -30,8 +30,12 @@ set -- $plat "$@"
 aws ecr-public get-login-password --profile github --region us-east-1 | \
   docker login --username AWS --password-stdin public.ecr.aws
 
+echo -e "BUILD STARTED AT $(date).\n" | tee "$log"
+
 # docker buildx create --name multi-builder --bootstrap --use
 # https://docs.docker.com/build/building/multi-platform/#building-multi-platform-images
 docker buildx build "$@" --builder multi-builder \
   --tag "$tag" --load --progress plain . 2>&1  | \
   sed -Eu 's/^(#[0-9]+ [0-9.]+ )(::(end)?group::.*)$/\2/' | tee -a "$log"
+
+echo -e "\nBUILD FINISHED AT $(date)." | tee -a "$log"
