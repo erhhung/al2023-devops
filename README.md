@@ -5,12 +5,13 @@ Multi-arch (x86_64/amd64 and aarch64/arm64) Docker image based on **Amazon Linux
 ## Bundled Tools
 
 Includes the following components:
-- [Python 3.13](https://www.python.org/downloads)
+- [Python 3.13](https://www.python.org/)
   - [Poetry](https://python-poetry.org/)
   - [pipx](https://pipx.pypa.io/)
   - [uv](https://docs.astral.sh/uv)
 - [Go 1.25](https://go.dev/dl)
-- [Node.js 24](https://nodejs.org/en/download)
+- [Node.js 24](https://nodejs.org/)
+  - [pnpm](https://pnpm.io/)
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide)
 - [AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide) and
   [CDK8s](https://cdk8s.io/)

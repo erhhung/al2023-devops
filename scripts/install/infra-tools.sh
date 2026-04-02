@@ -29,8 +29,29 @@ rm -rf /root/.cache
 ansible --version
 
 # install Ansible AWX CLI using system
-# Python 3.9 (must be <= Python 3.12)
-/usr/bin/pipx install --python /usr/bin/python3 awxkit
+# Python 3.9 (must be <= Python 3.12):
+# https://github.com/ansible/awx/tree/devel/INSTALL.md#installing-the-awx-cli
+
+# awxkit depends on pkg_resources, which was removed
+# in setuptools==81, so must constrain setuptools<81:
+# https://github.com/pypa/setuptools/issues/3085
+# https://stackoverflow.com/a/79886564/347685
+echo "setuptools<81" > /tmp/constraints.txt
+# also include package `jq` to allow `--conf.format jq`
+/usr/bin/pipx install awxkit --python /usr/bin/python3 \
+  --pip-args "--constraint /tmp/constraints.txt jq"
+
+# patch installed scripts to suppress
+# pkg_resources is deprecated warning
+for cli in awx akit; do
+  bin=$(which $cli)
+  grep -q filterwarnings $bin || \
+    sed -i '/import sys/a\
+\
+import warnings # ignore UserWarning: pkg_resources is deprecated...\
+warnings.filterwarnings("ignore", category=UserWarning, module="awxkit")\
+' $bin
+done
 # pipx installs under ~/.local/bin, which
 # is already in $PATH via Dockerfile ENV
 awx --version

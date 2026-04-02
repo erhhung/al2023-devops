@@ -69,7 +69,11 @@ FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS final
 # =======================================================
 
 ENV TERM="xterm-256color"
-ENV PATH="/usr/local/poetry/bin:$PATH:/root/.local/bin:/root/.krew/bin"
+ENV XDG_CONFIG_HOME="/root/.config"
+ENV XDG_CACHE_HOME="/root/.cache"
+ENV XDG_DATA_HOME="/root/.local/share"
+ENV XDG_STATE_HOME="/root/.local/state"
+ENV PATH="$PATH:/root/.local/bin"
 
 ENV LANG="en_US.UTF-8"
 ENV LANGUAGE="en_US:en"
@@ -86,46 +90,61 @@ WORKDIR /root
 ENV PYGMENT_STYLE="one-dark"
 
 # install Linux utilities
-RUN --mount=type=bind,source=scripts/install/linux-utils.sh,target=/tmp/install.sh /tmp/install.sh
+RUN --mount=type=tmpfs,target=/tmp \
+  --mount=type=bind,source=scripts/install/linux-utils.sh,target=/tmp/install.sh /tmp/install.sh
+
+ENV PATH="$PATH:/usr/local/poetry/bin"
 
 # install Python tools
-RUN --mount=type=bind,source=scripts/install/python-tools.sh,target=/tmp/install.sh /tmp/install.sh
+RUN --mount=type=tmpfs,target=/tmp \
+  --mount=type=bind,source=scripts/install/python-tools.sh,target=/tmp/install.sh /tmp/install.sh
 
 # install Go 1.25
-RUN --mount=type=bind,source=scripts/install/go.sh,target=/tmp/install.sh /tmp/install.sh
+RUN --mount=type=tmpfs,target=/tmp \
+  --mount=type=bind,source=scripts/install/go.sh,target=/tmp/install.sh /tmp/install.sh
 
 ENV JSII_SILENCE_WARNING_DEPRECATED_NODE_VERSION="1"
+ENV PNPM_HOME="$XDG_DATA_HOME/pnpm"
+ENV PNPM_STORE_DIR="$PNPM_HOME/store"
+ENV PATH="$PATH:$PNPM_HOME"
 
 # install Node.js 24
-RUN --mount=type=bind,source=scripts/install/node.sh,target=/tmp/install.sh /tmp/install.sh
+RUN --mount=type=tmpfs,target=/tmp \
+  --mount=type=bind,source=scripts/install/node.sh,target=/tmp/install.sh /tmp/install.sh
 
 ENV CDK8S_CHECK_UPGRADE="false"
 
 # install AWS tools
-RUN --mount=type=bind,source=scripts/install/aws-tools.sh,target=/tmp/install.sh /tmp/install.sh
+RUN --mount=type=tmpfs,target=/tmp \
+  --mount=type=bind,source=scripts/install/aws-tools.sh,target=/tmp/install.sh /tmp/install.sh
 
 ENV TF_CLI_ARGS_init="-compact-warnings"
 ENV TF_CLI_ARGS_plan="-compact-warnings"
 ENV TF_CLI_ARGS_apply="-compact-warnings"
 
 # install infra tools
-RUN --mount=type=bind,source=scripts/install/infra-tools.sh,target=/tmp/install.sh /tmp/install.sh
+RUN --mount=type=tmpfs,target=/tmp \
+  --mount=type=bind,source=scripts/install/infra-tools.sh,target=/tmp/install.sh /tmp/install.sh
 
 # https://man.archlinux.org/man/extra/buildah/buildah-bud
 ENV BUILDAH_ISOLATION="chroot"
 
 # install OCI image tools
-RUN --mount=type=bind,source=scripts/install/oci-tools.sh,target=/tmp/install.sh /tmp/install.sh
+RUN --mount=type=tmpfs,target=/tmp \
+  --mount=type=bind,source=scripts/install/oci-tools.sh,target=/tmp/install.sh /tmp/install.sh
 
 # HELM_BIN is required by helm-git
 ENV HELM_BIN="/usr/local/bin/helm"
-ENV HELM_PLUGINS="/root/.local/share/helm/plugins"
+ENV HELM_PLUGINS="$XDG_DATA_HOME/helm/plugins"
+ENV PATH="$PATH:/root/.krew/bin"
 
 # install Kubernetes tools
-RUN --mount=type=bind,source=scripts/install/k8s-tools.sh,target=/tmp/install.sh /tmp/install.sh
+RUN --mount=type=tmpfs,target=/tmp \
+  --mount=type=bind,source=scripts/install/k8s-tools.sh,target=/tmp/install.sh /tmp/install.sh
 
 # generate /root/.versions.json containing manifest
 # of all installed tools and their current versions
-RUN --mount=type=bind,source=scripts/versions.sh,target=/tmp/versions.sh /tmp/versions.sh
+RUN --mount=type=tmpfs,target=/tmp \
+  --mount=type=bind,source=scripts/versions.sh,target=/tmp/versions.sh /tmp/versions.sh
 
 CMD ["bash", "--login"]
