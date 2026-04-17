@@ -23,8 +23,8 @@ terraform --version
 # https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#pip-install
 pip3 install --no-cache-dir --root-user-action=ignore \
   ansible ansible-compat ansible-runner ansible-lint   \
-  toml bcrypt==4.0.1 passlib netaddr jsonpatch jmespath \
-  kubernetes kubernetes-validate
+  bcrypt==4.0.1 netaddr passlib tomlkit \
+  jsonpatch jmespath kubernetes kubernetes-validate
 rm -rf /root/.cache
 ansible --version
 
