@@ -30,7 +30,7 @@ jobs:
       # https://github.com/aws-actions/configure-aws-credentials
       - name: Configure AWS Credentials
         id: aws
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-region: ${{ vars.RUNNER_AWS_REGION }}
           role-to-assume: ${{ vars.RUNNER_OIDC_ROLE_ARN }}
@@ -38,7 +38,7 @@ jobs:
       # https://github.com/erhhung/ec2-github-runner
       - name: Launch Temporary EC2 Runner
         id: runner
-        uses: erhhung/ec2-github-runner@v3
+        uses: erhhung/ec2-github-runner@v4
         env:
           RUN_INFO: ${{ github.run_id }}-${{ github.run_attempt }}
         with:
@@ -132,7 +132,7 @@ jobs:
       # https://github.com/aws-actions/configure-aws-credentials
       - name: Configure AWS Credentials
         id: aws
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-region: ${{ vars.RUNNER_AWS_REGION }}
           role-to-assume: ${{ vars.RUNNER_OIDC_ROLE_ARN }}
@@ -140,7 +140,7 @@ jobs:
       # https://github.com/erhhung/ec2-github-runner
       - name: Terminate Temporary EC2 Runner
         id: runner
-        uses: erhhung/ec2-github-runner@v3
+        uses: erhhung/ec2-github-runner@v4
         with:
           mode: stop
           # cannot use github.token as it does not support
