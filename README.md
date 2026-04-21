@@ -9,9 +9,11 @@ Includes the following components:
   - [Poetry](https://python-poetry.org/)
   - [pipx](https://pipx.pypa.io/)
   - [uv](https://docs.astral.sh/uv)
-- [Go 1.25](https://go.dev/dl)
 - [Node.js 24](https://nodejs.org/)
   - [pnpm](https://pnpm.io/)
+- [Java 26](https://docs.aws.amazon.com/corretto/latest/corretto-26-ug)
+  - [Maven](https://maven.apache.org/)
+- [Go 1.25](https://go.dev/dl)
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide)
 - [AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide) and
   [CDK8s](https://cdk8s.io/)
@@ -65,7 +67,7 @@ As well as the following utilities:
 
 ## Prebuilt Images
 
-Size is approximately 4 GB _(too chubby, I know — see the [To-Do](#to-do) section)._
+Size is approximately 5 GB _(too chubby, I know — see the [To-Do](#to-do) section)._
 
 Images are available in the following repositories:
 - Docker Hub: [`docker.io/erhhung/al2023-devops`](https://hub.docker.com/repository/docker/erhhung/al2023-devops)

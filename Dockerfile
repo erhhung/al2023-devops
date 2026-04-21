@@ -99,10 +99,6 @@ ENV PATH="$PATH:/usr/local/poetry/bin"
 RUN --mount=type=tmpfs,target=/tmp \
   --mount=type=bind,source=scripts/install/python-tools.sh,target=/tmp/install.sh /tmp/install.sh
 
-# install Go 1.25
-RUN --mount=type=tmpfs,target=/tmp \
-  --mount=type=bind,source=scripts/install/go.sh,target=/tmp/install.sh /tmp/install.sh
-
 ENV JSII_SILENCE_WARNING_DEPRECATED_NODE_VERSION="1"
 ENV PNPM_HOME="$XDG_DATA_HOME/pnpm"
 ENV PNPM_STORE_DIR="$PNPM_HOME/store"
@@ -111,6 +107,18 @@ ENV PATH="$PATH:$PNPM_HOME"
 # install Node.js 24
 RUN --mount=type=tmpfs,target=/tmp \
   --mount=type=bind,source=scripts/install/node.sh,target=/tmp/install.sh /tmp/install.sh
+
+ENV JAVA_TOOL_OPTIONS="-Djava.awt.headless=true"
+ENV JAVA_HOME="/usr/lib/jvm/java-26-amazon-corretto"
+ENV PATH="$PATH:$JAVA_HOME/bin:/usr/local/maven/bin"
+
+# install Java JDK 26
+RUN --mount=type=tmpfs,target=/tmp \
+  --mount=type=bind,source=scripts/install/java.sh,target=/tmp/install.sh /tmp/install.sh
+
+# install Go 1.25
+RUN --mount=type=tmpfs,target=/tmp \
+  --mount=type=bind,source=scripts/install/go.sh,target=/tmp/install.sh /tmp/install.sh
 
 ENV CDK8S_CHECK_UPGRADE="false"
 
