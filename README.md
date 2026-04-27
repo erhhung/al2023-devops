@@ -24,8 +24,9 @@ Includes the following components:
 - [Docker CLI](https://www.docker.com/products/cli)
   - [BuildX](https://github.com/docker/buildx)
   - [Compose](https://docs.docker.com/compose)
-- [Buildah](https://github.com/containers/buildah) and
-  [Skopeo](https://github.com/containers/skopeo)
+- [Buildah](https://github.com/containers/buildah),
+  [Skopeo](https://github.com/containers/skopeo),
+  [ORAS](https://oras.land/docs)
 - [Dive](https://github.com/wagoodman/dive) and
   [MinToolkit/Mint](https://github.com/mintoolkit/mint)
 - [Kubectl](https://kubernetes.io/docs/tasks/tools) and

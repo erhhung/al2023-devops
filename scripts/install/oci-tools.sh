@@ -10,6 +10,13 @@ set -euxo pipefail
 # use the appropriate binaries for this multi-arch Docker image
 ARCH=$(uname -m | sed -e 's/aarch64/arm64/' -e 's/x86_64/amd64/')
 
+# install ORAS: https://oras.land/docs/installation#linux
+REL="https://github.com/oras-project/oras/releases"
+VER=$(curl -Is "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
+curl -fsSL "$REL/download/v${VER}/oras_${VER}_linux_${ARCH}.tar.gz" | \
+  tar -xz -C /usr/local/bin --no-same-owner oras
+oras version
+
 # install Dive: https://github.com/wagoodman/dive#installation
 REL="https://github.com/wagoodman/dive/releases"
 VER=$(curl -Is "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
