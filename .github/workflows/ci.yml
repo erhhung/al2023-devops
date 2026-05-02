@@ -9,20 +9,21 @@ on:
     tags:
       # match on year.month[.day]: YY.MM[.dd]
       # https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet
-      - '[2-9][0-9].[0-1][0-9].?[0-3]?[0-9]?'
+      - "[2-9][0-9].[0-1][0-9].?[0-3]?[0-9]?"
 
 env:
   IMAGE_LABELS: |-
-    org.opencontainers.image.authors=Erhhung Yuan <erhhung@gmail.com>
+    org.opencontainers.image.authors=${{ vars.IMAGE_AUTHORS }}
 
 # https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication
 # https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps
 permissions:
   id-token: write # obtain JWT via OIDC
-  contents: read  # repository checkout
+  contents: read # repository checkout
   packages: write # push image to GHCR
-  actions:  write # caches & artifacts
+  actions: write # caches & artifacts
 
+# https://docs.github.com/en/actions/reference/workflows-and-actions/contexts
 jobs:
   launch-runner:
     runs-on: ubuntu-latest
@@ -51,9 +52,9 @@ jobs:
           # runner could lose connection to GitHub Actions
           # if using instance type smaller than t4g.xlarge
           instance-type: ${{ vars.RUNNER_ARM64_INSTANCE_TYPE }}
-          assign-public-ip: '${{ vars.RUNNER_ASSIGN_PUBLIC_IP }}'
-          spot-instance: '${{ vars.RUNNER_USE_SPOT_INSTANCE }}'
-          root-volume-size: '${{ vars.RUNNER_ROOT_VOLUME_SIZE }}'
+          assign-public-ip: "${{ vars.RUNNER_ASSIGN_PUBLIC_IP }}"
+          spot-instance: "${{ vars.RUNNER_USE_SPOT_INSTANCE }}"
+          root-volume-size: "${{ vars.RUNNER_ROOT_VOLUME_SIZE }}"
           subnet-id: ${{ vars.RUNNER_SUBNET_ID }}
           security-group-id: ${{ vars.RUNNER_SECURITY_GROUP_ID }}
           iam-role-name: ${{ vars.RUNNER_INSTANCE_ROLE_NAME }}
@@ -78,10 +79,10 @@ jobs:
           labels-json=["${csv//,/\",\"}"]
           EOF
     outputs:
-      runner-name:  ${{ steps.runner.outputs.runner-name }}
-      instance-id:  ${{ steps.runner.outputs.instance-id }}
-      labels-json: '${{ steps.output.outputs.labels-json }}'
-      labels-csv:  '${{ steps.output.outputs.labels-csv }}'
+      runner-name: ${{  steps.runner.outputs.runner-name }}
+      instance-id: ${{  steps.runner.outputs.instance-id }}
+      labels-json: "${{ steps.output.outputs.labels-json }}"
+      labels-csv: "${{  steps.output.outputs.labels-csv  }}"
 
   # because env cannot be passed to reusable workflows:
   # https://github.com/orgs/community/discussions/26671
@@ -89,7 +90,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set env Variables as Outputs
-        run: '#'
+        run: "#"
     outputs:
       image-labels: ${{ env.IMAGE_LABELS }}
 
@@ -148,3 +149,88 @@ jobs:
           github-token: ${{ secrets.RUNNER_GITHUB_REPOS_PAT }}
           labels: ${{ needs.launch-runner.outputs.labels-csv }}
           instance-id: ${{ needs.launch-runner.outputs.instance-id }}
+
+  notify-slack:
+    if: always()
+    needs:
+      - launch-runner
+      - build-amd64
+      - build-arm64
+      - merge-manifests
+      - terminate-runner
+    runs-on: ubuntu-latest
+    steps:
+      - name: Gather Job & Workflow Results
+        id: results
+        shell: bash
+        run: |-
+          set -eo pipefail
+
+          run='${{ github.run_number }}'
+          [ '0${{ github.run_attempt }}' -gt 1 ] && \
+            run+='-${{ github.run_attempt }}'
+
+          # job results `needs.<job>.result`:
+          # success|failure|skipped|cancelled
+          l='${{ needs.launch-runner.result }}'
+          i='${{ needs.build-amd64.result }}'
+          a='${{ needs.build-arm64.result }}'
+          m='${{ needs.merge-manifests.result }}'
+          t='${{ needs.terminate-runner.result }}'
+
+          to_label() {
+            case "$1" in
+                success) echo 'OK' ;;
+                failure) echo 'FAILED' ;;
+                skipped) echo 'SKIPPED' ;;
+              cancelled) echo 'CANCELLED' ;;
+                      *) echo  ${1^^} ;;
+            esac
+          }
+           status='succeeded'
+          overall='SUCCESSFUL'
+             icon='✅'
+
+          # any job failure is workflow failure
+          for r in "$l" "$i" "$a" "$m" "$t"; do
+            [ "$r" == failure ] || continue
+             status='failed'
+            overall='FAILED'
+               icon='❌'
+            break
+          done
+
+          cat <<EOF >> $GITHUB_OUTPUT
+          run_number=$run
+          status=$status
+          overall=$overall
+          icon=$icon
+          launch_runner=$(to_label "$l")
+          build_amd64=$(to_label "$i")
+          build_arm64=$(to_label "$a")
+          merge_manifests=$(to_label "$m")
+          terminate_runner=$(to_label "$t")
+          EOF
+
+      # https://github.com/slackapi/slack-github-action
+      # https://docs.slack.dev/tools/slack-github-action/sending-data-slack-incoming-webhook
+      - name: Send Notification to Slack
+        id: slack
+        uses: slackapi/slack-github-action@v3
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |-
+            text: ${{ github.workflow }} of ${{ github.repository }} (run #${{ steps.results.outputs.run_number }}) ${{ steps.results.outputs.status }}
+            blocks:
+              - type: section
+                text:
+                  type: mrkdwn
+                  text: |-
+                    *${{ github.workflow }} of <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.repository }} _(run #${{ steps.results.outputs.run_number }})_>*
+                    *Workflow*: ${{ steps.results.outputs.icon }} *${{ steps.results.outputs.overall }}*
+                    *Launch runner*: ${{ steps.results.outputs.launch_runner }}
+                    *Build `amd64`*: ${{ steps.results.outputs.build_amd64 }}
+                    *Build `arm64`*: ${{ steps.results.outputs.build_arm64 }}
+                    *Merge manifests*: ${{ steps.results.outputs.merge_manifests }}
+                    *Terminate runner*: ${{ steps.results.outputs.terminate_runner }}
