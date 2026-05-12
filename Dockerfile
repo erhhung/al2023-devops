@@ -34,7 +34,7 @@ RUN --mount=type=bind,source=scripts/build/skopeo.sh,target=/tmp/build.sh /tmp/b
 # copy gomplate: https://docs.gomplate.ca/installing#use-inside-a-container
 COPY --from=hairyhenderson/gomplate:stable /gomplate /usr/local/bin/
 
-# copy Docker binaries, including BuildX and Compose
+# copy Docker binaries, including BuildX and Compose (but no daemon!)
 COPY --from=public.ecr.aws/docker/library/docker:dind /usr/local/bin/docker                  /usr/local/bin/
 COPY --from=public.ecr.aws/docker/library/docker:dind /usr/local/libexec/docker/cli-plugins/ /usr/local/bin/
 
@@ -102,7 +102,7 @@ RUN --mount=type=tmpfs,target=/tmp \
 ENV JSII_SILENCE_WARNING_DEPRECATED_NODE_VERSION="1"
 ENV PNPM_HOME="$XDG_DATA_HOME/pnpm"
 ENV PNPM_STORE_DIR="$PNPM_HOME/store"
-ENV PATH="$PATH:$PNPM_HOME"
+ENV PATH="$PATH:$PNPM_HOME/bin"
 
 # install Node.js 24
 RUN --mount=type=tmpfs,target=/tmp \

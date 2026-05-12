@@ -8,7 +8,8 @@ set -euxo pipefail
 
 # https://nodesource.com/products/distributions
 curl -fsSL https://rpm.nodesource.com/setup_24.x | bash -
-dnf install -y nodejs
+# pnpm requires `libatomic.so.1`
+dnf install -y nodejs libatomic
 dnf clean all
 rm -rf /var/log/* /var/cache/dnf
 npm install -g npm

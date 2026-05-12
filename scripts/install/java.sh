@@ -14,7 +14,7 @@ java --version
 
 # install Maven: https://maven.apache.org/download.cgi
 REL="https://github.com/apache/maven/releases"
-VER=$(curl -Is "$REL/latest" | sed -En 's/^location:.+\/tag\/.+-(.+)\r$/\1/p')
+VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/.+-(.+)\r$/\1/p')
 REL="https://dlcdn.apache.org/maven/maven-${VER%%.*}"
 mkdir -p /usr/local/maven
 curl -fsSL "$REL/$VER/binaries/apache-maven-$VER-bin.tar.gz" | \

@@ -5,6 +5,7 @@
 
 # shellcheck disable=SC2155 # Declare and assign separately
 # shellcheck disable=SC2086 # Double quote prevent globbing
+# shellcheck disable=SC2128 # Expanding array without index
 # shellcheck disable=SC2016 # Expr won't expand in '' quotes
 # shellcheck disable=SC2207 # Prefer mapfile to split output
 # shellcheck disable=SC2006 # Prefer $(...) over legacy `...`
@@ -43,8 +44,8 @@ setver() {
 
 # <package>
 dnfver() {
-  local v=(`dnf list installed "$1" | tail -1`)
-  echo "${v[1]%.amzn*}"
+  local v=(`dnf info "$1" 2> /dev/null | grep Version`)
+  [ "$v" ] && echo "${v[-1]}"
 }
 
 # <repository>
@@ -56,7 +57,7 @@ gclone() {
 
 # <repository>
 grelease() {
-  curl -Is "$1/releases/latest" | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p'
+  curl -ILs "$1/releases/latest" | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p'
 }
 
 setver age '$(v=`age --version`; echo ${v#v})'
@@ -90,6 +91,9 @@ setver helm-git '$(v=(`helm plugin list | grep git`); echo ${v[1]})'
 setver helm-secrets '$(helm secrets --version | head -1)'
 setver helm-ssm '$(v=(`helm plugin list | grep ssm`); echo ${v[1]})'
 setver helmfile '$(helmfile version -o short 2> /dev/null)'
+setver hostname '$(v=(`hostname --version`); echo ${v[-1]})'
+setver iproute '$(dnfver iproute)' # ip, rtmon, etc.
+setver iputils '$(dnfver iputils)' # ping, tracepath, etc.
 setver java '$(v=(`java --version | head -1`); echo ${v[1]})'
 setver jo '$(jo -V | jq -r .version)'
 setver jq '$(v=`jq --version`; echo ${v#*-})'
@@ -107,8 +111,9 @@ setver maven '$(v=(`mvn --version | head -1`); echo ${v[2]})'
 setver md5sum '$(v=(`md5sum --version | head -1`); echo ${v[-1]})'
 setver mint '$(v=`mint --version`; v=(${v//|/ }); echo ${v[4]%%-*})'
 gclone git://git.joeyh.name/moreutils
-setver moreutils '$(git describe --abbrev=0)'
+setver moreutils '$(git describe --abbrev=0)' # spong, pee, ts, etc.
 setver mount-s3 '$(v=(`mount-s3 --version`); echo ${v[-1]})'
+setver net-tools '$(dnfver net-tools)' # ifconfig, netstat, route, etc.
 setver netavark '$(v=(`/usr/local/libexec/podman/netavark --version`); echo ${v[-1]})'
 setver nmap '$(v=(`nmap --version | head -1`); echo ${v[2]})'
 setver node '$(v=`node --version`; echo ${v#v})'
@@ -142,3 +147,4 @@ setver wget '$(v=(`wget --version | head -1`); echo ${v[2]})'
 setver which '$(v=(`which --version | head -1`); v=${v[2]#v}; echo ${v%,})'
 setver xz '$(v=(`xz --version | head -1`); echo ${v[-1]})'
 setver yq '$(v=(`yq --version`); echo ${v[3]#v})'
+setver zstd '$(v=(`zstd --version`); v=${v[4]#v}; echo ${v%,})'

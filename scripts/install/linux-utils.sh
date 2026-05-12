@@ -17,10 +17,11 @@ dnf check-update
 
 # install common utilities (procps provides "free" command)
 # perl-IPC-Run and perl-Time-HiRes are required by moreutils
-dnf install -y git wget tar xz bzip2 gzip unzip man bc bash-completion \
-  which findutils kmod iproute iputils dnsutils net-tools nmap gettext \
-  procps pwgen sshpass openssl vim tmux perl-IPC-Run perl-Time-HiRes \
-  glibc-locale-source glibc-langpack-en python3-pip
+dnf install -y gettext zstd xz bzip2 gzip unzip tar wget man bc \
+  bash-completion which findutils kmod hostname iproute iputils \
+  dnsutils net-tools nmap procps pwgen sshpass openssl tmux git \
+  vim perl-IPC-Run perl-Time-HiRes glibc-locale-source \
+  glibc-langpack-en python3-pip
 dnf clean all
 rm -rf /var/log/* /var/cache/dnf
 alternatives --install /usr/local/bin/vi vi /usr/bin/vim 1
@@ -28,7 +29,7 @@ alternatives --list
 
 # install q DNS client: https://github.com/natesales/q
 REL="https://github.com/natesales/q/releases"
-VER=$(curl -Is "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
+VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
 curl -fsSL "$REL/download/v${VER}/q_${VER}_linux_$ARCH.tar.gz" | \
   tar -xz -C /usr/local/bin --no-same-owner q
 q --version
@@ -48,7 +49,7 @@ find /usr/{lib,share}/locale/* -maxdepth 0 -type d \
 # install just: https://github.com/casey/just#pre-built-binaries
 cd /tmp
 REL="https://github.com/casey/just/releases"
-VER=$(curl -Is "$REL/latest" | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
+VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
 curl -fsSL "$REL/download/$VER/just-$VER-$(uname -m)-unknown-linux-musl.tar.gz" | \
   tar -xz --no-same-owner just* completions/*.bash
 mv just       /usr/local/bin
@@ -59,7 +60,7 @@ just --version
 
 # install age: https://github.com/FiloSottile/age#installation
 REL="https://github.com/FiloSottile/age/releases"
-VER=$(curl -Is "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
+VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
 curl -fsSL "$REL/download/v${VER}/age-v${VER}-linux-$ARCH.tar.gz" | \
   tar -xz -C /usr/local/bin --no-same-owner --strip 1 --wildcards 'age/age*'
 age --version
@@ -74,7 +75,7 @@ install_bin() {
 
 # install sops: https://github.com/getsops/sops
 REL="https://github.com/getsops/sops/releases"
-VER=$(curl -Is "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
+VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
 (
   export SOPS_DISABLE_VERSION_CHECK=1
   install_bin sops "$REL/download/v${VER}/sops-v${VER}.linux.$ARCH"

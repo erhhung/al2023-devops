@@ -58,7 +58,7 @@ awx --version
 
 # install wait4x: https://github.com/wait4x/wait4x
 REL="https://github.com/wait4x/wait4x/releases"
-VER=$(curl -Is "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
+VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
 curl -fsSL "$REL/download/v${VER}/wait4x-linux-$ARCH.tar.gz" | \
   tar -xz -C /usr/local/bin --no-same-owner wait4x
 wait4x version
