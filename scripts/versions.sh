@@ -55,9 +55,10 @@ gclone() {
   git clone --bare -q $1 "$dir" && cd "$dir"
 }
 
-# <repository>
+# <owner>/<repo>
 grelease() {
-  curl -ILs "$1/releases/latest" | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p'
+  curl -ILs "https://github.com/$1/releases/latest" | \
+    sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p'
 }
 
 setver age '$(v=`age --version`; echo ${v#v})'
@@ -66,6 +67,8 @@ setver argocd '$(v=(`argocd version --client --short`); v=${v[-1]#v}; echo ${v%+
 setver aws '$(v=(`aws --version`); echo ${v[0]#*/})'
 setver awx '$(awx --version)'
 setver bash ${BASH_VERSION/%\(*/}
+setver bazel '$(v=(`bazel --version`); echo ${v[-1]})'
+setver bazelisk '$(v=`grelease bazelbuild/bazelisk`; echo ${v#v})'
 setver bc '$(v=(`bc --version | head -1`); echo ${v[-1]})'
 setver buildah '$(v=(`buildah --version`); echo ${v[2]})'
 setver bzip '$(v=(`bzip2 --version < /dev/null 2>&1 | head -1`); echo ${v[-2]%,})'
@@ -82,7 +85,9 @@ setver find '$(v=(`find --version | head -1`); echo ${v[-1]})'
 setver free '$(v=(`free --version`); echo ${v[-1]})'
 setver git '$(v=(`git version`); echo ${v[2]})'
 setver go '$(v=(`go version`); echo ${v[2]#go})'
-setver gomplate '$(v=(`gomplate --version`); echo ${v[-1]})'
+# https://github.com/hairyhenderson/gomplate/issues/2613
+# setver gomplate '$(v=(`gomplate --version`); echo ${v[-1]})'
+setver gomplate '$(v=`grelease hairyhenderson/gomplate`; echo ${v#v})'
 setver gzip '$(v=(`gzip --version | head -1`); echo ${v[-1]})'
 setver helm '$(v=`helm version --short`; v=${v#v}; echo ${v%+*})'
 setver helm-diff '$(helm diff version)'
@@ -110,8 +115,10 @@ setver kustomize '$(v=`kustomize version`; echo ${v#v})'
 setver maven '$(v=(`mvn --version | head -1`); echo ${v[2]})'
 setver md5sum '$(v=(`md5sum --version | head -1`); echo ${v[-1]})'
 setver mint '$(v=`mint --version`; v=(${v//|/ }); echo ${v[4]%%-*})'
+(
 gclone git://git.joeyh.name/moreutils
 setver moreutils '$(git describe --abbrev=0)' # spong, pee, ts, etc.
+)
 setver mount-s3 '$(v=(`mount-s3 --version`); echo ${v[-1]})'
 setver net-tools '$(dnfver net-tools)' # ifconfig, netstat, route, etc.
 setver netavark '$(v=(`/usr/local/libexec/podman/netavark --version`); echo ${v[-1]})'

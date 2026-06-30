@@ -68,7 +68,7 @@ git clone https://github.com/containers/netavark.git
 cd netavark
 
 # set app version to non-dev release
-sed -Ei 's/^(version = "[^-]+).+"$/\1"/' Cargo.toml
+sed -Ei 's/^(version = "[^-]+).*"$/\1"/' Cargo.toml
 make -sj"$(nproc)"
 # installs into (empty) dirs under /usr/local: /libexec/podman,
 #   /lib/systemd/system, /share/man/{man1,man7}
