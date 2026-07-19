@@ -114,7 +114,7 @@ setver kubectl '$(v=(`kubectl version --client | head -1`); echo ${v[2]#v})'
 setver kubectl-argo-rollouts '$(v=(`kubectl argo rollouts version --short`); v=${v[-1]#v}; echo ${v%+*})'
 setver kubectl-grep '$(v=`kubectl grep version --short`; echo ${v#v})'
 setver kustomize '$(v=`kustomize version`; echo ${v#v})'
-setver maven '$(v=(`mvn --version | head -1`); echo ${v[2]})'
+setver maven '$(v=(`mvn --version 2> /dev/null | head -1`); echo ${v[2]%%-*})'
 setver md5sum '$(v=(`md5sum --version | head -1`); echo ${v[-1]})'
 setver mint '$(v=`mint --version`; v=(${v//|/ }); echo ${v[4]%%-*})'
 (
