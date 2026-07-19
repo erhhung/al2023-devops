@@ -120,6 +120,10 @@ RUN --mount=type=tmpfs,target=/tmp \
 RUN --mount=type=tmpfs,target=/tmp \
   --mount=type=bind,source=scripts/install/go.sh,target=/tmp/install.sh /tmp/install.sh
 
+# install development tools
+RUN --mount=type=tmpfs,target=/tmp \
+  --mount=type=bind,source=scripts/install/dev-tools.sh,target=/tmp/install.sh /tmp/install.sh
+
 ENV CDK8S_CHECK_UPGRADE="false"
 
 # install AWS tools

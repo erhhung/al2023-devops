@@ -1,5 +1,6 @@
 [core]
 abbrev = 8
+pager = delta
 
 [color]
 ui = auto
@@ -131,5 +132,28 @@ insteadOf = git@github.com:
 [url "https://gitlab.com/"]
 insteadOf = git@gitlab.com:
 
+[url "https://gitea.com/"]
+insteadOf = git@gitea.com:
+
 [credential]
 helper = /usr/local/bin/git-credential-store-ro
+
+[interactive]
+diffFilter = delta --color-only
+
+[delta]
+features = side-by-side line-numbers decorations
+navigate = true
+dark = true
+syntax-theme = Monokai Extended Bright
+whitespace-error-style = 22 reverse
+plus-style = "syntax #012800"
+minus-style = "syntax #340001"
+
+[delta "decorations"]
+commit-decoration-style = bold yellow box ul
+file-style = bold yellow ul
+file-decoration-style = none
+
+[merge]
+conflictStyle = zdiff3

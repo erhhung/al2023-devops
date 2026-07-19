@@ -20,7 +20,7 @@ dnf check-update
 dnf install -y gettext zstd xz bzip2 gzip unzip tar wget man bc \
   bash-completion which findutils kmod hostname iproute iputils \
   dnsutils net-tools nmap procps pwgen sshpass openssl tmux git \
-  vim perl-IPC-Run perl-Time-HiRes glibc-locale-source \
+  vim rsync perl-IPC-Run perl-Time-HiRes glibc-locale-source \
   glibc-langpack-en python3-pip
 dnf clean all
 rm -rf /var/log/* /var/cache/dnf

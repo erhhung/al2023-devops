@@ -13,9 +13,9 @@ Includes the following components:
   - [pnpm](https://pnpm.io/)
 - [Java 26](https://docs.aws.amazon.com/corretto/latest/corretto-26-ug)
   - [Maven](https://maven.apache.org/)
-  - [Bazel](https://github.com/bazelbuild/bazelisk)
-  - [Buildtools](https://github.com/bazelbuild/buildtools) for Bazel
 - [Go 1.25](https://go.dev/dl)
+- [Bazel](https://github.com/bazelbuild/bazelisk)
+  - [Buildtools](https://github.com/bazelbuild/buildtools) for Bazel
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide)
 - [AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide) and
   [CDK8s](https://cdk8s.io/)
@@ -70,7 +70,7 @@ As well as the following utilities:
 
 ## Prebuilt Images
 
-Size is approximately 5 GB _(too chubby, I know — see the [To-Do](#to-do) section)._
+Size is over 5 GB _(too chubby, I know — see the [To-Do](#to-do) section)._
 
 Images are available in the following repositories:
 - Docker Hub: [`docker.io/erhhung/al2023-devops`](https://hub.docker.com/repository/docker/erhhung/al2023-devops)

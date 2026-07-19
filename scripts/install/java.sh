@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # shellcheck disable=SC2148 # Tips depend on target shell
+# shellcheck disable=SC2034 # The variable appears unused
 
 echo "::group::Install Java JDK 26"
 trap 'echo "::endgroup::"' EXIT
@@ -24,19 +25,3 @@ curl -fsSL "$REL/$VER/binaries/apache-maven-$VER-bin.tar.gz" | \
   tar -xz -C /usr/local/maven --no-same-owner --strip 1 "apache-maven-$VER"
 # /usr/local/maven/bin is already in $PATH via Dockerfile ENV command
 mvn --version
-
-# install Bazelisk: https://github.com/bazelbuild/bazelisk#installation
-REL="https://github.com/bazelbuild/bazelisk/releases"
-VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
-curl -fsSLo /usr/local/bin/bazel "$REL/download/v${VER}/bazelisk-linux-$ARCH"
-chmod +x /usr/local/bin/bazel
-bazel --version
-
-# install Buildifier + Buildozer: https://github.com/bazelbuild/buildtools
-REL="https://github.com/bazelbuild/buildtools/releases"
-VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
-for tool in buildifier buildozer; do
-  curl -fsSLo /usr/local/bin/$tool "$REL/download/v${VER}/$tool-linux-$ARCH"
-  chmod +x /usr/local/bin/$tool
-done
-buildifier -version
