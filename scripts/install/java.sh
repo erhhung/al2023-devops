@@ -31,3 +31,12 @@ VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
 curl -fsSLo /usr/local/bin/bazel "$REL/download/v${VER}/bazelisk-linux-$ARCH"
 chmod +x /usr/local/bin/bazel
 bazel --version
+
+# install Buildifier + Buildozer: https://github.com/bazelbuild/buildtools
+REL="https://github.com/bazelbuild/buildtools/releases"
+VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
+for tool in buildifier buildozer; do
+  curl -fsSLo /usr/local/bin/$tool "$REL/download/v${VER}/$tool-linux-$ARCH"
+  chmod +x /usr/local/bin/$tool
+done
+buildifier -version
