@@ -62,7 +62,7 @@ As well as the following utilities:
 - Common Linux utilities: `which`, `find`, `free`, `tar`, `gzip`, `xz`, `bzip`, `unzip`, `wget`, `git`,  
   `pwgen`, `md5sum`, `envsubst` (GNU gettext), `sponge`/`ts`/... ([moreutils](https://joeyh.name/code/moreutils/)), `bc`,
   `openssl`, `dig`,  
-  `nc`, `nmap`, `tmux`, `vim`
+  `nc`, `nmap`, `tmux`, `vim`, `rsync`
 - [Pygments](https://pygments.org/)
 - [Wait4X](https://wait4x.dev/)
 - [Just](https://just.systems/man/en)
