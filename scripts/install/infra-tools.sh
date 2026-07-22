@@ -17,6 +17,7 @@ dnf config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/has
 dnf install -y terraform
 dnf clean all
 rm -rf /var/log/* /var/cache/dnf
+rm /etc/yum.repos.d/hashicorp.repo
 terraform --version
 
 # install OpenTofu: https://opentofu.org/docs/intro/install/rpm#installing-using-the-installer
@@ -24,6 +25,7 @@ curl -fsSL https://get.opentofu.org/install-opentofu.sh | \
   sh -s -- --install-method rpm
 dnf clean all
 rm -rf /var/log/* /var/cache/dnf
+rm /etc/yum.repos.d/opentofu.repo
 
 # install Ansible and dependencies for Kubernetes:
 # https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#pip-install

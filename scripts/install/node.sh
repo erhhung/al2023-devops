@@ -12,6 +12,7 @@ curl -fsSL https://rpm.nodesource.com/setup_24.x | bash -
 dnf install -y nodejs libatomic
 dnf clean all
 rm -rf /var/log/* /var/cache/dnf
+rm /etc/yum.repos.d/nodesource-*.repo
 npm install -g npm
 node --version
 npm  --version
