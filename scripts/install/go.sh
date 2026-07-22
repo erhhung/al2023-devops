@@ -6,17 +6,17 @@
 # shellcheck disable=SC2006 # Prefer $(...) over legacy `...`
 # shellcheck disable=SC2207 # Prefer mapfile to split output
 
-echo "::group::Install Go 1.25"
+echo "::group::Install Go 1.26"
 trap 'echo "::endgroup::"' EXIT
 set -euxo pipefail
 
 # use the appropriate binaries for this multi-arch Docker image
 ARCH=$(uname -m | sed -e 's/aarch64/arm64/' -e 's/x86_64/amd64/')
 
-# Go 1.25 may not be available in Amazon package repository
-RPM=$(dnf repoquery --latest-limit=1 -s golang 2> /dev/null)
+# Go 1.26 may not be available in the Amazon package repository
+RPM=$(dnf repoquery -y --latest-limit=1 -s golang 2> /dev/null)
 
-if [[ "$RPM" == golang-1.25* ]]; then
+if [[ "$RPM" == golang-1.26* ]]; then
   # package installs under /usr/bin
   dnf install -y golang
   dnf clean all

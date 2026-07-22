@@ -13,7 +13,7 @@ Includes the following components:
   - [pnpm](https://pnpm.io/)
 - [Java 26](https://docs.aws.amazon.com/corretto/latest/corretto-26-ug)
   - [Maven](https://maven.apache.org/)
-- [Go 1.25](https://go.dev/dl)
+- [Go 1.26](https://go.dev/dl)
 - [Bazel](https://github.com/bazelbuild/bazelisk)
   - [Buildtools](https://github.com/bazelbuild/buildtools) for Bazel
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide)

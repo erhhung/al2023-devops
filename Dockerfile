@@ -115,7 +115,7 @@ ENV PATH="$PATH:$JAVA_HOME/bin:/usr/local/maven/bin"
 RUN --mount=type=tmpfs,target=/tmp \
   --mount=type=bind,source=scripts/install/java.sh,target=/tmp/install.sh /tmp/install.sh
 
-# install Go 1.25
+# install Go 1.26
 RUN --mount=type=tmpfs,target=/tmp \
   --mount=type=bind,source=scripts/install/go.sh,target=/tmp/install.sh /tmp/install.sh
 
