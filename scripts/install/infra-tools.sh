@@ -19,12 +19,18 @@ dnf clean all
 rm -rf /var/log/* /var/cache/dnf
 terraform --version
 
+# install OpenTofu: https://opentofu.org/docs/intro/install/rpm#installing-using-the-installer
+curl -fsSL https://get.opentofu.org/install-opentofu.sh | \
+  sh -s -- --install-method rpm
+dnf clean all
+rm -rf /var/log/* /var/cache/dnf
+
 # install Ansible and dependencies for Kubernetes:
 # https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#pip-install
 pip3 install --no-cache-dir --root-user-action=ignore \
-  ansible ansible-compat ansible-runner ansible-lint   \
-  bcrypt==4.0.1 netaddr passlib tomlkit \
-  jsonpatch jmespath kubernetes kubernetes-validate
+  ansible-core ansible-lint ansible-compat ansible-runner  \
+  bcrypt==4.0.1 netaddr passlib tomlkit jsonpatch jmespath \
+  kubernetes kubernetes-validate
 rm -rf /root/.cache
 ansible --version
 

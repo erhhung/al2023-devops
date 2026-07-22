@@ -20,6 +20,7 @@ cd Python*
 # https://docs.python.org/3/using/configure.html
 ./configure -q \
   --prefix=/usr/local \
+  --disable-test-modules \
   --enable-optimizations \
   --with-lto=full \
   --with-computed-gotos

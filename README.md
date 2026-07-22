@@ -20,9 +20,10 @@ Includes the following components:
 - [AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide) and
   [CDK8s](https://cdk8s.io/)
 - [Mountpoint for Amazon S3](https://docs.aws.amazon.com/AmazonS3/latest/userguide/mountpoint.html)
+- [Terraform](https://developer.hashicorp.com/terraform) and
+  [OpenTofu](https://opentofu.org/docs/intro)
 - [Ansible](https://docs.ansible.com/) and
   [AWX CLI](https://legacy-controller-docs.ansible.com/automation-controller/latest/html/controllercli/usage.html)
-- [Terraform](https://developer.hashicorp.com/terraform)
 - [Docker CLI](https://www.docker.com/products/cli)
   - [BuildX](https://github.com/docker/buildx)
   - [Compose](https://docs.docker.com/compose)
