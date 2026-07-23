@@ -9,6 +9,13 @@ set -euxo pipefail
 # use the appropriate binaries for this multi-arch Docker image
 ARCH=$(uname -m | sed -e 's/aarch64/arm64/' -e 's/x86_64/amd64/')
 
+# install GCC and Make:
+dnf install -y gcc make
+dnf clean all
+rm -rf /var/log/* /var/cache/dnf
+gcc --version
+make --version
+
 # install Delta: https://github.com/dandavison/delta
 REL="https://github.com/dandavison/delta/releases"
 VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')

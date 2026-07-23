@@ -60,10 +60,9 @@ As well as the following utilities:
 - [jsonnet](https://jsonnet.org/)
 - [GNU Parallel](https://savannah.gnu.org/projects/parallel)
 - [q](https://github.com/natesales/q) _DNS client_
-- Common Linux utilities: `which`, `find`, `free`, `tar`, `gzip`, `xz`, `bzip`, `unzip`, `wget`, `git`,  
-  `pwgen`, `md5sum`, `envsubst` (GNU gettext), `sponge`/`ts`/... ([moreutils](https://joeyh.name/code/moreutils/)), `bc`,
-  `openssl`, `dig`,  
-  `nc`, `nmap`, `tmux`, `vim`, `rsync`
+- Common Linux utilities: `which`, `find`, `free`, `tar`, `gzip`, `xz`, `bzip`, `unzip`, `wget`, `rsync`,  
+  `git`, `gcc`, `make`, `pwgen`, `md5sum`, `envsubst` (GNU gettext), `sponge`/`ts`/... ([moreutils](https://joeyh.name/code/moreutils/)), `bc`,  
+  `openssl`, `dig`, `nc`, `nmap`, `tmux`, `vim`
 - [Pygments](https://pygments.org/)
 - [Wait4X](https://wait4x.dev/)
 - [Just](https://just.systems/man/en)
@@ -81,4 +80,5 @@ Version information about the installed components can be found inside the Docke
 
 ## To-Do
 
-The current "All-in-One" image is getting too bloated, so there's a need to create specialized versions, like a slimmed-down image just for CI/CD pipelines, and a separate image for launching ad-hoc containers for manual administration and debugging. It's also unlikely that a single CI/CD pipeline stage would need all language environments, as Python and Go are especially chubby.
+The current "All-in-One" image is too bloated, so specialized editions should be created, like a slimmed-down image just for CI/CD pipelines, and a separate image for launching ad-hoc containers for manual administration and debugging.
+It's also unlikely that a single CI/CD pipeline stage would need all language environments, as Python and Go are especially chubby.
