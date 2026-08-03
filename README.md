@@ -48,7 +48,7 @@ Includes the following components:
   - [Helmfile](https://github.com/helmfile/helmfile)
   - [vals](https://github.com/helmfile/vals)
 - [Argo CD](https://argo-cd.readthedocs.io/)
-- [kind](https://kind.sigs.k8s.io/) and [vCluster](https://www.vcluster.com/)
+- [kind](https://kind.sigs.k8s.io/) and [vCluster CLI](https://www.vcluster.com/)
 
 As well as the following utilities:
 - [jq](https://stedolan.github.io/jq),
@@ -56,13 +56,15 @@ As well as the following utilities:
   [yq](https://mikefarah.gitbook.io/yq)
 - [sops](https://github.com/getsops/sops) and
   [age](https://github.com/FiloSottile/age)
-- [gomplate](https://docs.gomplate.ca/)
+- [ripgrep](https://github.com/BurntSushi/ripgrep)
 - [jsonnet](https://jsonnet.org/)
+- [gomplate](https://docs.gomplate.ca/)
 - [GNU Parallel](https://savannah.gnu.org/projects/parallel)
 - [q](https://github.com/natesales/q) _DNS client_
 - Common Linux utilities: `which`, `find`, `free`, `tar`, `gzip`, `xz`, `bzip`, `unzip`, `wget`, `rsync`,  
   `git`, `gcc`, `make`, `pwgen`, `md5sum`, `envsubst` (GNU gettext), `sponge`/`ts`/... ([moreutils](https://joeyh.name/code/moreutils/)), `bc`,  
   `openssl`, `dig`, `nc`, `nmap`, `tmux`, `vim`
+- Development utilitiers: `delta`, `cloc`
 - [Pygments](https://pygments.org/)
 - [Wait4X](https://wait4x.dev/)
 - [Just](https://just.systems/man/en)

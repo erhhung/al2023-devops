@@ -100,3 +100,11 @@ install_rpms() {
 # install jsonnet: https://jsonnet.org/
 install_rpms c4core rapidyaml jsonnet-libs jsonnet
 jsonnet --version
+
+# install ripgrep: https://github.com/BurntSushi/ripgrep#installation
+REL="https://github.com/BurntSushi/ripgrep/releases"
+VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
+# the "unknown-linux-gnu" build is not available for x86_64
+curl -fsSL "$REL/download/$VER/ripgrep-$VER-$(uname -m)-unknown-linux-musl.tar.gz" | \
+  tar -xz -C /usr/local/bin --no-same-owner --strip 1 '*/rg'
+rg --version | head -1

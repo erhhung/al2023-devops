@@ -38,14 +38,16 @@ eval "$(register-python-argcomplete pipx)"
 . <(poetry                completions bash)
 . <(just                --completions bash)
 . <(node                --completion-bash)
+# . <(docker                completion bash)
+# . <(buildah               completion bash)
 . <(kubectl               completion bash)
 . <(kubectl-grep          completion bash)
 . <(kubectl-argo-rollouts completion bash)
 . <(argocd                completion bash)
 . <(helm                  completion bash)
-. <(kind                  completion bash)
-. <(vcluster              completion bash)
-#. <(yq                   completion bash)
+# . <(kind                  completion bash)
+# . <(vcluster              completion bash)
+# . <(yq                    completion bash)
 
 complete -o dirnames -f -X '!*.*json'       jq
 complete -o dirnames -f -X '!*.@(yaml|yml)' yq

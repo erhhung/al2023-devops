@@ -16,13 +16,6 @@ rm -rf /var/log/* /var/cache/dnf
 gcc --version
 make --version
 
-# install Delta: https://github.com/dandavison/delta
-REL="https://github.com/dandavison/delta/releases"
-VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
-curl -fsSL "$REL/download/$VER/delta-$VER-$(uname -m)-unknown-linux-gnu.tar.gz" | \
-  tar -xz -C /usr/local/bin --no-same-owner --strip 1 "*/delta"
-delta --version
-
 # install Bazelisk: https://github.com/bazelbuild/bazelisk#installation
 REL="https://github.com/bazelbuild/bazelisk/releases"
 VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
@@ -38,3 +31,17 @@ for tool in buildifier buildozer; do
   chmod +x /usr/local/bin/$tool
 done
 buildifier -version
+
+# install Delta: https://github.com/dandavison/delta
+REL="https://github.com/dandavison/delta/releases"
+VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
+curl -fsSL "$REL/download/$VER/delta-$VER-$(uname -m)-unknown-linux-gnu.tar.gz" | \
+  tar -xz -C /usr/local/bin --no-same-owner --strip 1 "*/delta"
+delta --version
+
+# install cloc: https://github.com/AlDanial/cloc
+REL="https://github.com/AlDanial/cloc/releases"
+VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
+curl -fsSLo /usr/local/bin/cloc "$REL/download/v${VER}/cloc-$VER.pl"
+chmod +x /usr/local/bin/cloc
+cloc --version
