@@ -2,6 +2,7 @@
 
 # shellcheck disable=SC2148 # Tips depend on target shell
 # shellcheck disable=SC2034 # The variable appears unused
+# shellcheck disable=SC2086 # Double quote prevent globbing
 
 echo "::group::Install Java JDK 26"
 trap 'echo "::endgroup::"' EXIT
@@ -15,6 +16,9 @@ dnf install -y java-26-amazon-corretto-devel
 dnf clean all
 rm -rf /var/log/* /var/cache/dnf
 java --version
+
+# discard symbols from bins to reduce size
+strip $JAVA_HOME/bin/* 2> /dev/null || true
 
 # install Maven: https://maven.apache.org/download.cgi
 REL="https://github.com/apache/maven/releases"

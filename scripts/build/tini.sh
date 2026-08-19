@@ -18,7 +18,7 @@ CFLAGS=(
 )
 export CFLAGS="${CFLAGS[*]}"
 cmake .
-make -sj"$(nproc)"
+make -sj"$(nproc)" && strip tini tini-static
 # installs into /usr/local/bin
 PREFIX=/usr/local make install
 tini --version

@@ -8,3 +8,4 @@ set -euxo pipefail
 
 dnf update
 dnf group install -y "Development Tools"
+dnf install -y lzip

@@ -172,3 +172,6 @@ VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
 curl -fsSLo vcluster "$REL/download/v${VER}/vcluster-linux-$ARCH"
 chmod +x vcluster
 vcluster version
+
+# discard symbols from bins to reduce size
+strip /usr/local/bin/* 2> /dev/null || true

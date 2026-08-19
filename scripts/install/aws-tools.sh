@@ -29,3 +29,6 @@ ARCH=$(uname -m | sed 's/aarch64/arm64/') # must be x86_64 or arm64
 curl -fsSL "$REL/$ARCH/mount-s3.tar.gz" | \
   tar -xz -C /usr/local/bin --no-same-owner --strip 2 ./bin
 mount-s3 --version
+
+# discard symbols from bins to reduce size
+strip /usr/local/bin/* 2> /dev/null || true

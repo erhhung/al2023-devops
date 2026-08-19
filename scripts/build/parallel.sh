@@ -18,8 +18,12 @@ curl -fsL $FTP/parallel-$VER.tar.bz2 | tar -xj
 # git clone -q $GIT
 cd parallel*
 
-autoreconf --install -W gnu
+# autoreconf is only needed
+# if building from Git repo
+# autoreconf --install -W gnu
 ./configure --prefix=/usr/local -q
+# the parallel executable
+# is just a Perl script!
 make -sj"$(nproc)"
 # installs into (empty) dirs under /usr/local: /bin, /share/man/man1,
 #   /share/bash-completion/completions, /share/zsh/site-functions

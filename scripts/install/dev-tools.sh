@@ -9,13 +9,6 @@ set -euxo pipefail
 # use the appropriate binaries for this multi-arch Docker image
 ARCH=$(uname -m | sed -e 's/aarch64/arm64/' -e 's/x86_64/amd64/')
 
-# install GCC and Make:
-dnf install -y gcc make
-dnf clean all
-rm -rf /var/log/* /var/cache/dnf
-gcc --version
-make --version
-
 # install Bazelisk: https://github.com/bazelbuild/bazelisk#installation
 REL="https://github.com/bazelbuild/bazelisk/releases"
 VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
@@ -45,3 +38,6 @@ VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
 curl -fsSLo /usr/local/bin/cloc "$REL/download/v${VER}/cloc-$VER.pl"
 chmod +x /usr/local/bin/cloc
 cloc --version
+
+# discard symbols from bins to reduce size
+strip /usr/local/bin/* 2> /dev/null || true

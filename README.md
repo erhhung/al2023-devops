@@ -5,7 +5,7 @@ Multi-arch (x86_64/amd64 and aarch64/arm64) Docker image based on **Amazon Linux
 ## Bundled Tools
 
 Includes the following components:
-- [Python 3.13](https://www.python.org/)
+- [Python 3.14](https://www.python.org/)
   - [Poetry](https://python-poetry.org/)
   - [pipx](https://pipx.pypa.io/)
   - [uv](https://docs.astral.sh/uv)

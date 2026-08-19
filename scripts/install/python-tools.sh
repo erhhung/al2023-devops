@@ -17,7 +17,7 @@ curl -fsSL https://astral.sh/uv/install.sh | XDG_BIN_HOME=/usr/local/bin sh
 uv -V
 
 # install pipx (for both system Python 3.9 in
-# /usr/bin and Python 3.13 in /usr/local/bin)
+# /usr/bin and Python 3.14 in /usr/local/bin)
 /usr/bin/pip3 install --prefix /usr --no-cache-dir pipx 2> /dev/null
 /usr/local/bin/pip3 install --no-cache-dir --root-user-action=ignore pipx
 pipx --version
@@ -27,3 +27,6 @@ pip3 install --no-cache-dir --root-user-action=ignore colored \
   pygments ansitable
 rm -rf /root/.cache
 pygmentize -V
+
+# discard symbols from bins to reduce size
+strip /usr/local/bin/* 2> /dev/null || true

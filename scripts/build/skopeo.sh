@@ -37,8 +37,7 @@ cd skopeo
 
 # set app version to non-dev release
 sed -Ei 's/^(.+Version = "[^-]+).+"$/\1"/' version/version.go
-export DISABLE_DOCS=1
-make -sj"$(nproc)"
+DISABLE_DOCS=1 make -sj"$(nproc)" && strip bin/skopeo
 # installs into (empty) dirs under /usr/local: /bin,
 #   /share/bash-completion/completions, /share/zsh/site-functions
 make install && rm -rf /usr/local/share/fish

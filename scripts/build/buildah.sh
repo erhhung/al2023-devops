@@ -50,7 +50,7 @@ git -c advice.detachedHead=false checkout v1.42.0
 # set app version to non-dev release
 sed -Ei 's/^(.+Version = "[0-9.]+).*"$/\1"/' define/types.go
 go mod vendor
-make -sj"$(nproc)"
+make -sj"$(nproc)" && strip bin/buildah
 # installs into (empty) dirs under
 # /usr/local: /bin, /share/man/man1
 make install
@@ -69,7 +69,7 @@ cd netavark
 
 # set app version to non-dev release
 sed -Ei 's/^(version = "[^-]+).*"$/\1"/' Cargo.toml
-make -sj"$(nproc)"
+make -sj"$(nproc)" && strip bin/netavark
 # installs into (empty) dirs under /usr/local: /libexec/podman,
 #   /lib/systemd/system, /share/man/{man1,man7}
 make install

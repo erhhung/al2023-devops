@@ -10,26 +10,29 @@ SHELL ["/bin/bash", "-c"]
 # install common build tools
 RUN --mount=type=bind,source=scripts/build/common.sh,target=/tmp/build.sh /tmp/build.sh
 
-# build Python 3.13: https://www.build-python-from-source.com/
-RUN --mount=type=bind,source=scripts/build/python.sh,target=/tmp/build.sh /tmp/build.sh
+# build GNU Make first so other builds can use it: https://www.gnu.org/software/make
+RUN --mount=type=bind,source=scripts/build/make.sh,target=/tmp/build.sh /tmp/build.sh
+
+# build GNU Parallel: https://www.gnu.org/software/parallel
+RUN --mount=type=bind,source=scripts/build/parallel.sh,target=/tmp/build.sh /tmp/build.sh
 
 # build moreutils: https://joeyh.name/code/moreutils
 RUN --mount=type=bind,source=scripts/build/moreutils.sh,target=/tmp/build.sh /tmp/build.sh
 
-# build GNU parallel: https://www.gnu.org/software/parallel
-RUN --mount=type=bind,source=scripts/build/parallel.sh,target=/tmp/build.sh /tmp/build.sh
-
-# build tini: https://github.com/krallin/tini
-RUN --mount=type=bind,source=scripts/build/tini.sh,target=/tmp/build.sh /tmp/build.sh
-
 # build jo: https://github.com/jpmens/jo
 RUN --mount=type=bind,source=scripts/build/jo.sh,target=/tmp/build.sh /tmp/build.sh
+
+# build Python 3.14: https://www.build-python-from-source.com/
+RUN --mount=type=bind,source=scripts/build/python.sh,target=/tmp/build.sh /tmp/build.sh
 
 # build buildah: https://github.com/containers/buildah
 RUN --mount=type=bind,source=scripts/build/buildah.sh,target=/tmp/build.sh /tmp/build.sh
 
 # build skopeo: https://github.com/containers/skopeo
 RUN --mount=type=bind,source=scripts/build/skopeo.sh,target=/tmp/build.sh /tmp/build.sh
+
+# build tini: https://github.com/krallin/tini
+RUN --mount=type=bind,source=scripts/build/tini.sh,target=/tmp/build.sh /tmp/build.sh
 
 # copy gomplate: https://docs.gomplate.ca/installing#use-inside-a-container
 COPY --from=hairyhenderson/gomplate:stable /gomplate /usr/local/bin/

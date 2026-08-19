@@ -87,7 +87,7 @@ ehist = "!f() { \
 sub = submodule
 # fetch plus submodules
 up = "!f() { \
-  git pull --rebase --prune --tags -f \"$@\" && \
+  git pull --rebase --stat --prune --tags -f \"$@\" && \
   git submodule update --init --recursive; \
 }; f"
 co = checkout

@@ -17,11 +17,10 @@ dnf check-update
 
 # install common utilities (procps provides "free" command)
 # perl-IPC-Run and perl-Time-HiRes are required by moreutils
-dnf install -y gettext zstd xz bzip2 gzip unzip tar wget man bc \
-  bash-completion which findutils kmod hostname iproute iputils \
-  dnsutils net-tools nmap procps pwgen sshpass openssl tmux git \
-  vim rsync perl-IPC-Run perl-Time-HiRes glibc-locale-source \
-  glibc-langpack-en python3-pip
+dnf install -y gettext zstd xz bzip2 gzip lzip unzip tar wget rsync man \
+  bc bash-completion which findutils kmod hostname dnsutils iputils iproute \
+  net-tools nmap procps pwgen sshpass openssl git gcc vim tmux python3-pip \
+  perl-IPC-Run perl-Time-HiRes glibc-locale-source glibc-langpack-en
 dnf clean all
 rm -rf /var/log/* /var/cache/dnf
 alternatives --install /usr/local/bin/vi vi /usr/bin/vim 1
@@ -108,3 +107,6 @@ VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
 curl -fsSL "$REL/download/$VER/ripgrep-$VER-$(uname -m)-unknown-linux-musl.tar.gz" | \
   tar -xz -C /usr/local/bin --no-same-owner --strip 1 '*/rg'
 rg --version | head -1
+
+# discard symbols from bins to reduce size
+strip /usr/local/bin/* 2> /dev/null || true
