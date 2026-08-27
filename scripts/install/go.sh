@@ -29,7 +29,7 @@ else
   for bin in /usr/local/go/bin/*; do
     ln -s $bin /usr/local/bin/
   done
-  strip /usr/local/go/bin/*
+  strip -s /usr/local/go/bin/*
 fi
 go version
 

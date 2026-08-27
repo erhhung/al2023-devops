@@ -8,7 +8,7 @@
 
 echo "::group::Install Kubernetes tools"
 trap 'echo "::endgroup::"' EXIT
-set -exo pipefail
+set -euxo pipefail
 
 # use the appropriate binaries for this multi-arch Docker image
 ARCH=$(uname -m | sed -e 's/aarch64/arm64/' -e 's/x86_64/amd64/')
@@ -86,9 +86,10 @@ helm-docs --version
 
 # install Helm plugins
 install_plugin() {
-  local repo=$1 ver=$2 tgz=$3
+  local repo=$1 ver=${2:-} tgz=${3:-}
   [ "$ver" ] || ver=$(
-    curl -ILs "$repo/releases/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p'
+    curl -ILs "$repo/releases/latest" | \
+      sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p'
   )
   local args=(--verify=false)
   if [ "$tgz" ]; then
@@ -172,6 +173,3 @@ VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
 curl -fsSLo vcluster "$REL/download/v${VER}/vcluster-linux-$ARCH"
 chmod +x vcluster
 vcluster version
-
-# discard symbols from bins to reduce size
-strip /usr/local/bin/* 2> /dev/null || true

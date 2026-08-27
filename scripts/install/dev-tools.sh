@@ -38,6 +38,3 @@ VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
 curl -fsSLo /usr/local/bin/cloc "$REL/download/v${VER}/cloc-$VER.pl"
 chmod +x /usr/local/bin/cloc
 cloc --version
-
-# discard symbols from bins to reduce size
-strip /usr/local/bin/* 2> /dev/null || true

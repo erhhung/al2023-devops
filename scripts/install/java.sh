@@ -15,10 +15,8 @@ ARCH=$(uname -m | sed -e 's/aarch64/arm64/' -e 's/x86_64/amd64/')
 dnf install -y java-26-amazon-corretto-devel
 dnf clean all
 rm -rf /var/log/* /var/cache/dnf
+strip -s $JAVA_HOME/bin/*
 java --version
-
-# discard symbols from bins to reduce size
-strip $JAVA_HOME/bin/* 2> /dev/null || true
 
 # install Maven: https://maven.apache.org/download.cgi
 REL="https://github.com/apache/maven/releases"

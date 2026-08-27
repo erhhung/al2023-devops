@@ -18,4 +18,6 @@ make -sj"$(nproc)" && strip make
 # installs into (empty) dirs under /usr/local: /bin, /include,
 #   /share/info, /share/locale, /share/man/man1,
 ./make install
+# also need to shadow /usr/bin/gmake
+(cd /usr/local/bin; ln -s make gmake)
 hash -r && make --version

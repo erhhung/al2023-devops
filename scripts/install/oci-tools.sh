@@ -64,6 +64,3 @@ driver = "vfs"
 runroot = "/run/containers/storage"
 graphroot = "/var/lib/containers/storage"
 EOF
-
-# discard symbols from bins to reduce size
-strip /usr/local/bin/* 2> /dev/null || true

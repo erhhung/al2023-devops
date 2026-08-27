@@ -27,6 +27,3 @@ pip3 install --no-cache-dir --root-user-action=ignore colored \
   pygments ansitable
 rm -rf /root/.cache
 pygmentize -V
-
-# discard symbols from bins to reduce size
-strip /usr/local/bin/* 2> /dev/null || true

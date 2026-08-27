@@ -13,7 +13,7 @@ dnf install -y nodejs libatomic
 dnf clean all
 rm -rf /var/log/* /var/cache/dnf
 rm /etc/yum.repos.d/nodesource-*.repo
-strip /usr/bin/node
+strip -s /usr/bin/node
 npm install -g npm
 node --version
 npm  --version
@@ -31,6 +31,3 @@ curl -fsSL https://get.pnpm.io/install.sh | sh -
 # Dockerfile ENV, so no need for .bashrc
 rm -f /root/.bashrc
 pnpm --version
-
-# discard symbols from bins to reduce size
-strip /usr/local/bin/* 2> /dev/null || true

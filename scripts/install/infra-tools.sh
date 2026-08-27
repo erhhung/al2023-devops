@@ -18,6 +18,7 @@ dnf install -y terraform
 dnf clean all
 rm -rf /var/log/* /var/cache/dnf
 rm /etc/yum.repos.d/hashicorp.repo
+strip -s /usr/bin/terraform
 terraform --version
 
 # install OpenTofu: https://opentofu.org/docs/intro/install/rpm#installing-using-the-installer
@@ -26,6 +27,8 @@ curl -fsSL https://get.opentofu.org/install-opentofu.sh | \
 dnf clean all
 rm -rf /var/log/* /var/cache/dnf
 rm /etc/yum.repos.d/opentofu.repo
+strip -s /usr/bin/tofu
+tofu --version
 
 # install Ansible and dependencies for Kubernetes:
 # https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#pip-install
@@ -70,6 +73,3 @@ VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/v(.+)\r$/\1/p')
 curl -fsSL "$REL/download/v${VER}/wait4x-linux-$ARCH.tar.gz" | \
   tar -xz -C /usr/local/bin --no-same-owner wait4x
 wait4x version
-
-# discard symbols from bins to reduce size
-strip /usr/local/bin/* 2> /dev/null || true

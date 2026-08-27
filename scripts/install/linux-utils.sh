@@ -107,6 +107,3 @@ VER=$(curl -ILs "$REL/latest" | sed -En 's/^location:.+\/tag\/(.+)\r$/\1/p')
 curl -fsSL "$REL/download/$VER/ripgrep-$VER-$(uname -m)-unknown-linux-musl.tar.gz" | \
   tar -xz -C /usr/local/bin --no-same-owner --strip 1 '*/rg'
 rg --version | head -1
-
-# discard symbols from bins to reduce size
-strip /usr/local/bin/* 2> /dev/null || true
