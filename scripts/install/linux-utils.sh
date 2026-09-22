@@ -19,8 +19,9 @@ dnf check-update
 # perl-IPC-Run and perl-Time-HiRes are required by moreutils
 dnf install -y gettext zstd xz bzip2 gzip lzip unzip tar wget rsync man \
   bc bash-completion which findutils kmod hostname dnsutils iputils iproute \
-  net-tools nmap procps pwgen sshpass openssl git gcc vim tmux python3-pip \
-  perl-IPC-Run perl-Time-HiRes glibc-locale-source glibc-langpack-en
+  net-tools nmap procps pwgen sshpass openssl git gcc vim tmux pv dialog \
+  python3-pip perl-IPC-Run perl-Time-HiRes \
+  glibc-locale-source glibc-langpack-en
 dnf clean all
 rm -rf /var/log/* /var/cache/dnf
 alternatives --install /usr/local/bin/vi vi /usr/bin/vim 1
